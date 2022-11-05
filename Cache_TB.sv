@@ -39,7 +39,7 @@ begin
 		$display("normal Mode is  used");
 
 $display(" ");
-
+$display("n address ");
 	for (int i=0;i<6;i=i+1)
 	begin
 		$fgets(line,event_open);

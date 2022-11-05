@@ -18,7 +18,7 @@ begin
 	clk = 0;
 	rst = 1;
 
-	event_open = $fopen("./Hex_file/event.txt","r");
+	event_open = $fopen("./event.txt","r");
 
 	if($test$plusargs ("silent"))
 		$display("silent Mode is  used");

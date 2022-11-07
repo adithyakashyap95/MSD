@@ -4,7 +4,7 @@
 ## Compilation command
 # Using GUI
 #
-## Elaboration command to pass the valid test plus args
+## Elaboration command to pass the valid test plus args ; DO NOT ADD FILENAME IN "" it should be direct, name of the file should not contain spaces
 # vsim -voptargs=+acc work.cache_TB +silent +FILENAME=<filename>
 #
 # Valid test plus args

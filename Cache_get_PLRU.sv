@@ -9,11 +9,11 @@ module Cache_get_PLRU #(
 
 always_comb
 begin
-	if( get_lru[0]==0 ) 
+	if( get_lru[0]==1 ) 
 	begin
-		if( get_lru[1]==0 )
+		if( get_lru[1]==1 )
 		begin
-			if ( get_lru[3]==0 )
+			if ( get_lru[3]==1 )
 			begin
 				way_getlru=3'b000;
 			end
@@ -24,7 +24,7 @@ begin
 		end
 		else
 		begin
-			if( get_lru[4]==0)
+			if( get_lru[4]==1)
 			begin
 				way_getlru=3'b010;
 			end
@@ -36,9 +36,9 @@ begin
 	end
 	else
 	begin
-		if( get_lru[2]==0 )
+		if( get_lru[2]==1 )
 		begin
-			if ( get_lru[5]==0 )
+			if ( get_lru[5]==1 )
 			begin
 				way_getlru=3'b100;
 			end
@@ -49,7 +49,7 @@ begin
 		end
 		else
 		begin
-			if( get_lru[6]==0)
+			if( get_lru[6]==1)
 			begin
 				way_getlru=3'b110;
 			end

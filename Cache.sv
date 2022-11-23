@@ -50,7 +50,7 @@ assign byte_offset_in = address[(BYTE-1):0];
 */
 
 // CORE LOGIC starts from here
-assign update_sets = 1'b0;  // FIXME : Build the combi logic for updating the sets based on LRU and MESI
+assign update_sets = 1'b1;  // FIXME : Build the combi logic for updating the sets based on LRU and MESI
 
 // Creating flops for the whole cache
 always_ff@(posedge clk or negedge rstb)
@@ -68,6 +68,8 @@ begin
 		sets <= sets;
 	end
 end
+
+// Combi logic for the next signal; generate a update signal when all are ready to go inside the cache and check for updates
 
 always_comb
 begin

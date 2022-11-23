@@ -12,8 +12,9 @@ output logic 	BusRd_out,
 output logic 	BusRdX_out,
 output logic 	Flush
 );
+`include "Cache_struct.sv"
 
-mesi_states_t currentstate, nextstate;
+mesi_t currentstate, nextstate;
 
 always_ff @(posedge clk)
 	if(!rstb)

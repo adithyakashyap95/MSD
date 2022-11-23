@@ -1,25 +1,17 @@
 module Caache_mesi_fsm(
-input logic clk,
-input logic rstb,
-input logic PrRd,
-input logic PrWr,
-input logic BusUpgr_in,
-input logic BusRd_in,
-input logic BusRdX_in,
-output logic C_in,
-output logic BusUpgr_out,
-output logic BusRd_out,
-output logic BusRdX_out,
-output logic Flush
+input  logic 	clk,
+input  logic 	rstb,
+input  logic 	PrRd,
+input  logic 	PrWr,
+input  logic 	BusUpgr_in,
+input  logic 	BusRd_in,
+input  logic 	BusRdX_in,
+output logic 	C_in,
+output logic 	BusUpgr_out,
+output logic 	BusRd_out,
+output logic 	BusRdX_out,
+output logic 	Flush
 );
-
-typedef enum logic[1:0]
-{
-	M = 2'b11,
-	E = 2'b10,
-	S = 2'b01,
-	I = 2'b00
-}mesi_states_t;
 
 mesi_states_t currentstate, nextstate;
 

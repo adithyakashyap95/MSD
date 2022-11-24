@@ -1,4 +1,4 @@
-
+`ifndef LOCALPARAM
 localparam WAYS           = 8;                                // 8 WAY ASSOCIATIVE
 localparam WAYS_REP       = $clog2(WAYS);                     // log(8) WAY ASSOCIATIVE to represent
 localparam CAPACITY       = 16000000;                         // 16MB capacity
@@ -29,3 +29,5 @@ localparam EVICTLINE      = 4;                                /* Evict a line fr
 // this is when L2's replacement policy causes eviction of a line that
 // may be present in L1. It could be done by a combination of GETLINE
 // (if the line is potentially modified in L1) and INVALIDATELINE.
+
+`endif

@@ -2,23 +2,26 @@
 module cache_TB;
 
 logic  clk;
-logic  rst;
+logic  rstb;
 int    event_open;
 string line;
 string filename;
+logic [31:0] address;
+logic [3:0] n;
+logic valid;
 
 cache #(
-	.WIDTH		(1)
+	
 ) DUT (
-	.clk		(clk),
-	.rst		(rst)
+	.clk		(clk    ),
+	.rstb		(rstb	),
+	.address        (address),
+	.n		(n	),
+	.valid 		(valid	)
 );
 
 initial 
 begin
-	clk = 0;
-	rst = 1;
-
 	$value$plusargs("FILENAME=%s",filename);
 	event_open = $fopen(filename,"r");
 
@@ -56,6 +59,24 @@ $display("n address \n");
 		$display("%s ",line);
 	end
 
+end
+
+initial
+begin
+	clk = 0;
+	forever #5 clk = ~clk;
+end
+
+initial
+begin
+	rstb = 0;
+	n = 8;
+	valid = 0;
+	#20
+	rstb = 1;
+	#50
+	n = 0;
+	address = 0;
 end
 
 endmodule

@@ -52,7 +52,7 @@ logic 				rstb_comb; // created the combi logic to reset it
 
 // This modukle generates the necessary pulses for each module to operate
 
-Cache_opr_ctrl (
+Cache_opr_ctrl i_opr_ctrl (
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
 	.valid		(valid		),
@@ -145,13 +145,13 @@ Cache_mesi_fsm#(
 ) i_mesi_fsm (
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
-	.PrRd		(PdRd		),
+	.PrRd		(PrRd		),
 	.PrWr		(PrWr 		),
 	.BusUpgr_in	(BusUpgr_in	),
 	.BusRd_in	(BusRd_in	),
 	.BusRdX_in	(BusRdX_in	),
-	
 	.C_in		(C_in		),
+
 	.BusUpgr_out	(BusUpgr_out	),
 	.BusRd_out	(BusRd_out	),
 	.BusRdX_out	(BusRdX_out	),

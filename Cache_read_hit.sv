@@ -8,7 +8,7 @@ module Cache_hit #(
 	input  logic 		     rstb,
 	input  sets_nway_t 	     sets,
 	input  logic     	     read,
-	input  logic [(INDEX-1):0]   tag_in,
+	input  logic [(TAG-1):0]     tag_in,
 	output logic [WAYS_REP-1:0]  way,
 	output logic 		     cmpr_read_hit
 );
@@ -35,42 +35,42 @@ end
 
 always_comb
 begin
-	if((set.line[0].tag)==tag_in)
+	if((sets.line[0].tag)==tag_in)
 	begin
 		cntr = 0;
 		cmpr_hit = 1;
 	end
-	else if ((set.line[1].tag)==tag_in)
+	else if ((sets.line[1].tag)==tag_in)
 	begin
 		cntr = 1;
 		cmpr_hit = 1;
 	end
-	else if ((set.line[2].tag)==tag_in)
+	else if ((sets.line[2].tag)==tag_in)
 	begin
 		cntr = 2;	
 		cmpr_hit = 1;
 	end
-	else if ((set.line[3].tag)==tag_in)
+	else if ((sets.line[3].tag)==tag_in)
 	begin
 		cntr = 3;
 		cmpr_hit = 1;
 	end
-	else if ((set.line[4].tag)==tag_in)
+	else if ((sets.line[4].tag)==tag_in)
 	begin
 		cntr = 4;
 		cmpr_hit = 1;
 	end
-	else if ((set.line[5].tag)==tag_in)
+	else if ((sets.line[5].tag)==tag_in)
 	begin
 		cntr = 5;
 		cmpr_hit = 1;
 	end
-	else if ((set.line[6].tag)==tag_in)
+	else if ((sets.line[6].tag)==tag_in)
 	begin
 		cntr = 6;
 		cmpr_hit = 1;
 	end
-	else if ((set.line[7].tag)==tag_in)
+	else if ((sets.line[7].tag)==tag_in)
 	begin 
 		cntr = 7;
 		cmpr_hit = 1;

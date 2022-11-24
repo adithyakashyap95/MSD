@@ -65,9 +65,9 @@ assign byte_offset_in = address[(BYTE-1):0];
 //small module to be coded for the Read hit case so that it compares the
 // tag incoming qnd exisitng and get the way from it : Cache_read_hit
 
-assign read = ((n==READ_REQ_L1_D)|(n==READ_REQ_L1_I));
+assign read = ((n==READ_REQ_L1_D)|(n==READ_REQ_L1_I)|(n==WRITE_REQ_L1_D));
 
-Cache_read_hit #(
+Cache_hit #(
 	.WAYS_REP	(WAYS_REP	),
 	.INDEX	        (INDEX		)
 ) i_read_hit (

@@ -1,6 +1,6 @@
 `include "Cache_struct.sv"
 
-module Cache_read_hit #(
+module Cache_hit #(
 	parameter 	WAYS_REP	= 3,
 	parameter 	INDEX		= 3    // DONT FORGET TO OVERRIDE ELSE THIS WONT WORK	
 )(
@@ -13,8 +13,12 @@ module Cache_read_hit #(
 	output logic 		     cmpr_read_hit
 );
 
-logic [WAYS_REP] cntr;
-logic        	 cmpr_hit;
+logic [WAYS_REP-1:0] cntr;
+logic        	     cmpr_hit;
+
+/*
+
+Delay it accordingly
 
 always_ff @(posedge clk or negedge rstb)
 begin
@@ -27,10 +31,60 @@ begin
 	else
 		cntr <= cntr + 1;
 end
+*/
 
 always_comb
 begin
-	cmpr_hit      = (set.line[cntr].tag == tag_in) ? 1: 0; 
+	if((set.line[0].tag)==tag_in)
+	begin
+		cntr = 0;
+		cmpr_hit = 1;
+	end
+	else if ((set.line[1].tag)==tag_in)
+	begin
+		cntr = 1;
+		cmpr_hit = 1;
+	end
+	else if ((set.line[2].tag)==tag_in)
+	begin
+		cntr = 2;	
+		cmpr_hit = 1;
+	end
+	else if ((set.line[3].tag)==tag_in)
+	begin
+		cntr = 3;
+		cmpr_hit = 1;
+	end
+	else if ((set.line[4].tag)==tag_in)
+	begin
+		cntr = 4;
+		cmpr_hit = 1;
+	end
+	else if ((set.line[5].tag)==tag_in)
+	begin
+		cntr = 5;
+		cmpr_hit = 1;
+	end
+	else if ((set.line[6].tag)==tag_in)
+	begin
+		cntr = 6;
+		cmpr_hit = 1;
+	end
+	else if ((set.line[7].tag)==tag_in)
+	begin 
+		cntr = 7;
+		cmpr_hit = 1;
+	end
+	else 
+	begin
+		cntr = 0;
+		cmpr_hit = 1;
+	end
+end
+
+always_comb
+begin
+	//cmpr_hit      = (set.line[cntr].tag == tag_in) ? 1: 0; 
 	way           = (cmpr_hit == 1) ?  cntr : 0;
 	cmpr_read_hit = cmpr_hit;
 end

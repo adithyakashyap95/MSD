@@ -5,7 +5,8 @@ module cache #(
 	input logic 	        clk,
 	input logic 	        rstb,
 	input logic [31:0]      address,
-	input logic  [3:0]      n
+	input logic  [3:0]      n,
+	input logic 		valid
 );
 
 `include "Cache_struct.sv"
@@ -34,6 +35,38 @@ logic 				BusRd_out;
 logic 				BusRdX_out;
 logic 				Flush;
 
+// Could have selected a vector but this will be easy i the waves
+logic 				opr_1;
+logic 				opr_2;
+logic 				opr_3;
+logic 				opr_4;
+logic 				opr_5;
+logic 				opr_6;
+logic 				opr_7;
+logic 				opr_8;
+
+logic 				opr_finished;
+
+logic 				sync_rstb; // This is when n = 8
+logic 				rstb_comb; // created the combi logic to reset it
+
+// This modukle generates the necessary pulses for each module to operate
+
+Cache_opr_ctrl (
+	.clk		(clk		),
+	.rstb		(rstb_comb	),
+	.valid		(valid		),
+	.opr_finished	(opr_finished	),
+	.opr_1		(opr_1		),
+	.opr_2		(opr_2		),
+	.opr_3		(opr_3		),
+	.opr_4		(opr_4		),
+	.opr_5		(opr_5		),
+	.opr_6		(opr_6		),
+	.opr_7		(opr_7		),
+	.opr_8		(opr_8		)
+);
+
 // Decode n with enum logic 
 always_comb
 begin
@@ -49,6 +82,12 @@ begin
   		9:n_in = PRINT_CONTENTS;
 		default:n_in = PRINT_CONTENTS;     // Considering the if invalid commands to print             
 	endcase
+end
+
+always_comb
+begin
+	sync_rstb = ((n_in & valid) == CLR_CACHE_RST) ? 0 : 1;    // active low 
+	rstb_comb = rstb & sync_rstb;			// AND with the main reset; Initial bug analysis on rstb
 end
 
 // decode address
@@ -72,7 +111,7 @@ Cache_hit #(
 	.INDEX	        (INDEX		)
 ) i_read_hit (
 	.clk		(clk		),
-	.rstb		(rstb		),
+	.rstb		(rstb_comb	),
 	.sets		(sets[index_in] ),
 	.read		(read		),
 	.tag_in		(tag_in		),
@@ -105,7 +144,7 @@ Cache_mesi_fsm#(
 
 ) i_mesi_fsm (
 	.clk		(clk		),
-	.rstb		(rstb		),
+	.rstb		(rstb_comb	),
 	.PrRd		(PdRd		),
 	.PrWr		(PrWr 		),
 	.BusUpgr_in	(BusUpgr_in	),
@@ -123,7 +162,7 @@ Cache_mesi_fsm#(
 assign update_sets = 1'b0;  // FIXME : Build the combi logic for updating the sets based on LRU and MESI
 
 // Creating flops for the whole cache
-always_ff@(posedge clk or negedge rstb)
+always_ff@(posedge clk or negedge rstb_comb)
 begin
 	if(rstb==0)
 	begin
@@ -141,7 +180,7 @@ end
 
 // Combi logic for the next signal; generate a update signal when all are ready to go inside the cache and check for updates
 // Update below combi logic which is wrong
-// FIXME
+// FIXME : HOw to write to cache coming in..... Think on this
 
 always_comb
 begin

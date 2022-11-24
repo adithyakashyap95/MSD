@@ -1,0 +1,56 @@
+0 984DE132
+9 (miss)
+0 116DE12F
+9 (miss) 
+0 100DE130
+9 (miss)
+0 999DE12E
+9 (miss)
+0 645DE10A
+9 (miss)
+0 846DE107
+9 (miss)
+0 211DE128
+9 (miss)
+0 777DE133
+9 (miss)
+0 999DE132
+9 (hit) 
+1 116DE123
+9 (hit)    (MESI state:)
+1 666DE135
+9 (miss)
+1 333DE12C
+9 (miss)
+0 846DE10C
+9 (hit)
+0 777DE136
+9 (hit)
+1 ABCDE128
+9 (miss)
+0 116DE101
+9 (hit)
+1 100DE101
+9 (miss)
+1 AAADE101
+9 (miss)
+1 EDCDE101
+9 (miss)
+
+2 936BCE01
+9 (miss)
+2 96BA5629
+9 (miss)
+2 ABC01758
+9 (miss)
+2 DF789BC9
+9 (miss)
+2 936BCE01
+9 (hit)
+
+Data Cache: 
+Reads-12 Hit-4 Miss-8
+Write-7 Hit-1 Miss-6
+
+Instruction Cache: 
+Reads-5 Hit-1 Miss-4

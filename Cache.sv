@@ -51,7 +51,7 @@ logic 				sync_rstb; // This is when n = 8
 logic 				rstb_comb; // created the combi logic to reset it
 
 // This modukle generates the necessary pulses for each module to operate
-
+// FIXME: Give this output to 
 Cache_opr_ctrl i_opr_ctrl (
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
@@ -104,7 +104,7 @@ assign byte_offset_in = address[(BYTE-1):0];
 //small module to be coded for the Read hit case so that it compares the
 // tag incoming qnd exisitng and get the way from it : Cache_read_hit
 
-assign read = ((n==READ_REQ_L1_D)|(n==READ_REQ_L1_I)|(n==WRITE_REQ_L1_D));
+assign read = ((n_in==READ_REQ_L1_D)|(n_in==READ_REQ_L1_I)|(n_in==WRITE_REQ_L1_D));
 
 Cache_hit #(
 	.WAYS_REP	(WAYS_REP	),
@@ -159,7 +159,6 @@ Cache_mesi_fsm#(
 );
 
 // CORE LOGIC starts from here
-assign update_sets = 1'b0;  // FIXME : Build the combi logic for updating the sets based on LRU and MESI
 
 // Creating flops for the whole cache
 always_ff@(posedge clk or negedge rstb_comb)
@@ -180,12 +179,31 @@ end
 
 // Combi logic for the next signal; generate a update signal when all are ready to go inside the cache and check for updates
 // Update below combi logic which is wrong
-// FIXME : HOw to write to cache coming in..... Think on this
+// FIXME : How to write to cache coming in..... Think on this 
 
 always_comb
 begin
+	update_sets = (n_in==WRITE_REQ_L1_D); // Should add cases of evictions and stuff 
+	// read miss then also we need to get it from cache
 	sets_nxt[index_in].line[ways_in].tag = tag_in; 
 	sets_nxt[index_in].line[ways_in].byte_select = byte_offset_in; 
 end
 
 endmodule
+
+//
+// POINTS TO IMPLEMENT
+//
+// Write to cache based on many events those events must be mentioned
+// Cache is acting as memory ? Check that ? 
+// Should way be getting from cache_read_hit module or not  ?? test it 
+// address decoder ? whether is it working ??? 
+// Tri stating the Output 
+// 
+// Inclusivity should be maintaned 24 slide cache coherence
+// slide 29 coherence also should check that
+// Operations should be performed in order using opr_ wires
+// inference of MESI state diagrams like evictions and write or read
+// L1 is dirty and it writes to L2 then L2 writes to DRAM upon eviciton 
+
+

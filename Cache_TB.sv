@@ -9,15 +9,19 @@ string filename;
 logic [31:0] address;
 logic [3:0] n;
 logic valid;
+logic [15:0] miss_cntr;
+logic [15:0] hit_cntr;
 
 cache #(
 	
 ) DUT (
-	.clk		(clk    ),
-	.rstb		(rstb	),
-	.address        (address),
-	.n		(n	),
-	.valid 		(valid	)
+	.clk		(clk   		),
+	.rstb		(rstb		),
+	.address        (address	),
+	.n		(n		),
+	.valid 		(valid		),
+	.hit_cntr	(hit_cntr	),
+	.miss_cntr	(miss_cntr	)
 );
 
 initial 

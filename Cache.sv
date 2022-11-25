@@ -2,11 +2,13 @@
 module cache #(
 // All are taken as local parm 
 )(
-	input logic 	        clk,
-	input logic 	        rstb,
-	input logic [31:0]      address,
-	input logic  [3:0]      n,
-	input logic 		valid
+	input  logic 	        clk,
+	input  logic 	        rstb,
+	input  logic [31:0]     address,
+	input  logic  [3:0]     n,
+	input  logic 		valid,
+	output logic [15:0]	hit_cntr,   // Counter to count the number of HITS
+	output logic [15:0]     miss_cntr   // Counter to count the number of MISS
 );
 
 `include "Cache_struct.sv"
@@ -23,6 +25,7 @@ logic [WAYS-1-1:0]	 	plru_in;
 logic [WAYS-1-1:0]       	plru_out;
 logic [WAYS_REP-1:0]        	way_read_hit;
 logic 				read;
+logic 				cmpr_read_hit;
 
 logic 				PrRd;
 logic 				PrWr;
@@ -67,6 +70,32 @@ Cache_opr_ctrl i_opr_ctrl (
 	.opr_8		(opr_8		)
 );
 
+// Counter for HIt and Miss
+
+always_ff@(posedge clk or negedge rstb_comb)
+begin
+	if(rstb_comb==0)
+	begin
+		hit_cntr  <= '0;
+		miss_cntr <= '0;
+	end
+	else if (opr_finished & (cmpr_read_hit))
+	begin
+		hit_cntr  <= hit_cntr  + 1;
+		miss_cntr <= miss_cntr;
+	end
+	else if (opr_finished & (~cmpr_read_hit))
+	begin
+		hit_cntr  <= hit_cntr;
+		miss_cntr <= miss_cntr + 1;
+	end
+	else 
+	begin
+		hit_cntr  <= hit_cntr;
+		miss_cntr <= miss_cntr;
+	end
+end
+
 // Decode n with enum logic 
 always_comb
 begin
@@ -84,6 +113,7 @@ begin
 	endcase
 end
 
+// Reset block to be used for clearing the cache asynchronously 
 always_comb
 begin
 	sync_rstb = ((n_in & valid) == CLR_CACHE_RST) ? 0 : 1;    // active low 
@@ -163,7 +193,7 @@ Cache_mesi_fsm#(
 // Creating flops for the whole cache
 always_ff@(posedge clk or negedge rstb_comb)
 begin
-	if(rstb==0)
+	if(rstb_comb==0)
 	begin
 		sets <= 0;
 	end

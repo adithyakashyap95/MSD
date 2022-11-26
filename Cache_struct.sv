@@ -8,11 +8,16 @@ typedef enum logic[1:0]
   I = 2'b00              // Invalidate // reset state hence assigned the value 00
 } mesi_t;
 
+typedef struct packed 
+{	
+  mesi_t mesi;
+} mesi_struct;
+
 typedef struct packed
 {
   mesi_t  mesi;                      // MESI state replacing valid and dirty
-  logic [(INDEX-1):0] tag;           // REPLACE TAG 
-  logic [(BYTE-1):0]  byte_select;   // Byte select
+  logic  [(INDEX-1):0] tag;           // REPLACE TAG 
+  logic  [(BYTE-1):0]  byte_select;   // Byte select
 } line_t;
 
 typedef struct packed

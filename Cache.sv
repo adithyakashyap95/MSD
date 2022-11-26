@@ -53,6 +53,9 @@ logic 				opr_finished;
 logic 				sync_rstb; // This is when n = 8
 logic 				rstb_comb; // created the combi logic to reset it
 
+mesi_struct			mesi_states_in;   // Use this to update in cache
+mesi_struct			mesi_states_out;  // Use this to update in FSM
+
 // This modukle generates the necessary pulses for each module to operate
 // FIXME: Give this output to 
 Cache_opr_ctrl i_opr_ctrl (
@@ -81,7 +84,7 @@ begin
 	end
 	else if (opr_finished & (cmpr_read_hit))
 	begin
-		hit_cntr  <= hit_cntr  + 1;
+		hit_cntr  <= hit_cntr + 1;
 		miss_cntr <= miss_cntr;
 	end
 	else if (opr_finished & (~cmpr_read_hit))
@@ -117,7 +120,7 @@ end
 always_comb
 begin
 	sync_rstb = ((n_in & valid) == CLR_CACHE_RST) ? 0 : 1;    // active low 
-	rstb_comb = rstb & sync_rstb;			// AND with the main reset; Initial bug analysis on rstb
+	rstb_comb = rstb & sync_rstb;			          // AND with the main reset; Initial bug analysis on rstb
 end
 
 // decode address
@@ -181,11 +184,13 @@ Cache_mesi_fsm#(
 	.BusRd_in	(BusRd_in	),
 	.BusRdX_in	(BusRdX_in	),
 	.C_in		(C_in		),
+	.mesi_states_in	(mesi_states_in ),
 
 	.BusUpgr_out	(BusUpgr_out	),
 	.BusRd_out	(BusRd_out	),
 	.BusRdX_out	(BusRdX_out	),
-	.Flush		(Flush		)
+	.Flush		(Flush		),
+	.mesi_states_out(mesi_states_out)
 );
 
 // CORE LOGIC starts from here
@@ -224,7 +229,7 @@ endmodule
 //
 // POINTS TO IMPLEMENT
 //
-// Write to cache based on many events those events must be mentioned
+// Write to cache based on many events those events must be mentioned 
 // Cache is acting as memory ? Check that ? 
 // Should way be getting from cache_read_hit module or not  ?? test it 
 // address decoder ? whether is it working ??? 

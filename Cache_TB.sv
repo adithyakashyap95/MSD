@@ -76,6 +76,7 @@ begin
 	rstb = 0;
 	n = 8;
 	valid = 0;
+	address = 0;
 	#20
 	rstb = 1;
 	#50

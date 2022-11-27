@@ -1,24 +1,24 @@
-
 module cache_TB;
 
 logic  clk;
 logic  rstb;
 int    event_open;
+int    file_read;
 string line;
 string filename;
-logic [31:0] address;
-logic [3:0] n;
-logic valid;
-logic [15:0] miss_cntr;
-logic [15:0] hit_cntr;
+logic  [31:0] address;
+logic  [3:0] n;
+logic  valid;
+logic  [15:0] miss_cntr;
+logic  [15:0] hit_cntr;
 
 cache #(
 	
 ) DUT (
 	.clk		(clk   		),
 	.rstb		(rstb		),
-	.address        (address	),
-	.n		(n		),
+	.address    	(address	),
+    	.n		(n		),
 	.valid 		(valid		),
 	.hit_cntr	(hit_cntr	),
 	.miss_cntr	(miss_cntr	)
@@ -26,6 +26,7 @@ cache #(
 
 initial 
 begin
+  	rstb = 0; 
 	$value$plusargs("FILENAME=%s",filename);
 	event_open = $fopen(filename,"r");
 
@@ -57,31 +58,26 @@ begin
 		$display("normal Mode is  used");
 $display(" ");
 $display("n address \n");
-	for (int i=0;i<6;i=i+1)
+  for (int i=0;i<6;i=i+1)
 	begin
 		$fgets(line,event_open);
 		$display("%s ",line);
 	end
-
+ 	while(!$feof(event_open))
+    	begin
+        	valid = 1'b1;
+	    	file_read = $fscanf(event_open,"%h %h\n",n,address);
+		$display("Valid = %0b, n = %0d, address = %0h",valid,n,address);
+   		repeat(5) @(posedge clk) valid = 1'b0;
+		$display("Valid = %0b, n = %0d, address = %0h",valid,n,address);
+	        repeat(100) @(posedge clk);        
+		compare_tracefiles(hit_cntr,miss_cntr);      
+    	end
 end
-
 initial
 begin
 	clk = 0;
 	forever #5 clk = ~clk;
-end
-
-initial
-begin
-	rstb = 0;
-	n = 8;
-	valid = 0;
-	address = 0;
-	#20
-	rstb = 1;
-	#50
-	n = 0;
-	address = 0;
 end
 
 endmodule

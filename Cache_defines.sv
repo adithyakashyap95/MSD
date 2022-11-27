@@ -1,7 +1,7 @@
 `ifndef LOCALPARAM
 localparam WAYS           = 8;                                // 8 WAY ASSOCIATIVE
 localparam WAYS_REP       = $clog2(WAYS);                     // log(8) WAY ASSOCIATIVE to represent
-localparam CAPACITY       = 16000000;                         // 16MB capacity
+localparam CAPACITY       = 16777216;                         // 16MB capacity
 localparam LINE_SIZE      = 64;                               // LINE size
 localparam INDEX          = $clog2((CAPACITY/(LINE_SIZE/WAYS))); // 16MB/64/8 = 2^(15) 
 localparam BYTE           = $clog2(64);                       // log(64) where 64B is byte line 

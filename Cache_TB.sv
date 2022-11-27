@@ -15,6 +15,7 @@ logic  [15:0] miss_cntr;
 logic  [15:0] hit_cntr;
 static int i = 0;
 static logic [15:0] current_idx;
+
 cache #(
 	
 ) DUT (
@@ -30,6 +31,9 @@ cache #(
 initial 
 begin
   	rstb = 0;
+	#20;
+	rstb = 1;
+	#10;
 	current_idx = 0;
 
 	ref_file_h = $fopen("./filecompare.txt","r"); //opens the file

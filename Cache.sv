@@ -124,8 +124,8 @@ begin
 end
 
 // decode address
-assign tag_in         = address[31:(INDEX-1)]; 
-assign index_in       = address[(INDEX-1):(BYTE-1)];
+assign tag_in         = address[31:(INDEX+BYTE)]; 
+assign index_in       = address[(INDEX+BYTE-1):BYTE];
 assign byte_offset_in = address[(BYTE-1):0];
 
 // Module to interface with each bit of LRU
@@ -218,10 +218,11 @@ end
 
 always_comb
 begin
-	update_sets = (n_in==WRITE_REQ_L1_D); // Should add cases of evictions and stuff 
+	//update_sets = (n_in==WRITE_REQ_L1_D)&(opr_finished); // Should add cases of evictions and stuff 
+	update_sets = 0;	
 	// read miss then also we need to get it from cache
 	sets_nxt[index_in].line[ways_in].tag = tag_in; 
-	sets_nxt[index_in].line[ways_in].byte_select = byte_offset_in; 
+	//sets_nxt[index_in].line[ways_in].byte_select = byte_offset_in; 
 end
 
 endmodule
@@ -232,8 +233,9 @@ endmodule
 // Write to cache based on many events those events must be mentioned 
 // Cache is acting as memory ? Check that ? 
 // Should way be getting from cache_read_hit module or not  ?? test it 
-// address decoder ? whether is it working ??? 
-// Tri stating the Output 
+// Tri stating the Output ?? Or should we give the output in enum only ?
+// should implement the output in series like opr_1 then opr_2 then opr_3
+// HIT should happen only when it is not in invalid state add that condiition
 // 
 // Inclusivity should be maintaned 24 slide cache coherence
 // slide 29 coherence also should check that

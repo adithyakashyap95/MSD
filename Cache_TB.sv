@@ -32,14 +32,14 @@ begin
   	rstb = 0;
 	current_idx = 0;
 
-	ref_file_h = $fopen("./filecompare.txt","r");
-	while(!$feof(ref_file_h))
+	ref_file_h = $fopen("./filecompare.txt","r"); //opens the file
+	while(!$feof(ref_file_h)) //up until end of file, this loop will run
 	begin
-		ref_file_read_h = $fscanf(ref_file_h,"%s",ref_result);
-		all_ref_results.insert(i,ref_result);
-		i = i + 1;
-	end
-	$fclose(ref_file_h);
+		ref_file_read_h = $fscanf(ref_file_h,"%s",ref_result); //scaning the file and taking its contents in ref_result
+		all_ref_results.insert(i,ref_result); //taking a queue to take the data from the file using insert 
+		i = i + 1; //gives us the queue number (index)
+	end 
+	$fclose(ref_file_h); //closes the file
 
 	$value$plusargs("FILENAME=%s",filename);
 	event_open = $fopen(filename,"r");
@@ -77,18 +77,18 @@ $display("n address \n");
 		$display("%s ",line);
 	end*/
  	
-	while(!$feof(event_open))
+	while(!$feof(event_open)) //up until end of file, this loop will run, event_open is the filename variable
     	begin
-        	valid = 1'b1;
-	    	file_read = $fscanf(event_open,"%h %h\n",n,address);
+        	valid = 1'b1; //valid set to 1
+		file_read = $fscanf(event_open,"%h %h\n",n,address); // each line will get scanned and n=mode and address will get seperated
+		$display("Valid = %0b, n = %0d, address = %h, Hit = %0d, Miss = %0d",valid,n,address,hit_cntr,miss_cntr); 
+		repeat(1) @(posedge clk) valid = 1'b0; //valid set to 0
 		$display("Valid = %0b, n = %0d, address = %h, Hit = %0d, Miss = %0d",valid,n,address,hit_cntr,miss_cntr);
-   		repeat(1) @(posedge clk) valid = 1'b0;
-		$display("Valid = %0b, n = %0d, address = %h, Hit = %0d, Miss = %0d",valid,n,address,hit_cntr,miss_cntr);
-	        repeat(100) @(posedge clk);     
-		compare_tracefiles(hit_cntr,miss_cntr,current_idx,all_ref_results);//remove current_idx once DUT hits/misses are working
+		repeat(100) @(posedge clk);     //valid that is set to 0 will be repeated for 100 clock cycles
+		compare_tracefiles(hit_cntr,miss_cntr,current_idx,all_ref_results);//remove current_idx once DUT hits/misses are working //task is being called
 		current_idx = current_idx + 1;//remove this line if hits/misses from DUT are working    
     	end
-	$fclose(event_open);
+	$fclose(event_open); //closes the file
 	//#10 $stop;
 end
 initial
@@ -112,18 +112,18 @@ task compare_tracefiles(
 	begin
 		//add this line when hits/misses from DUT are working
 		//current_idx = hit_cntr + miss_cntr;
-		if(all_ref_results[current_idx] == "hit") 
+		if(all_ref_results[current_idx] == "hit")  //comparing that when the refrence value with the index matches 'hit' the hit counter will increment 
 		begin
 			hits = hits + 1;
-			all_ref_results.delete(current_idx); 
+			all_ref_results.delete(current_idx); //clearing the queue so it doesn't take that value again
 		end
 		else
-			misses = misses + 1;	
+			misses = misses + 1;	//or else it'll increment the miss counter
 		//while(!(hits == 0 && misses == 0))//add this while when hits/misses from DUT are working
 		//begin
-         		if((hits == hit_cntr) && (misses == miss_cntr))
+		if((hits == hit_cntr) && (misses == miss_cntr)) //when output and refrence output matches
 				$display("Output matches with the expected. H=%0d, M=%0d, IDX=%0d",hits,misses,current_idx);
-			else
+			else  //when output and refrence output doesn't matche
 				$display("Mismatch!!! H=%0d, M=%0d, IDX = %0d",hits,misses,current_idx);
 		//end
 		//-----------------------------------------------------------

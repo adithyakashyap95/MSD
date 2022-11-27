@@ -1,5 +1,5 @@
 task compare_tracefiles(
-	input hit_counter, miss_counter
+	input [15:0] hit_cntr, [15:0] miss_cntr
 	);
 	
 	//int output_file_h,ref_file_h;
@@ -25,7 +25,7 @@ task compare_tracefiles(
 		end
 		//$fclose(output_file_h);
 		$fclose(ref_file_h);
-		counter = hit_counter + miss_counter; 
+		counter = hit_cntr + miss_cntr; 
 		for(j = 0; j < 30; j++)
 		begin
 			if(ref_values[j] == output_values[counter])

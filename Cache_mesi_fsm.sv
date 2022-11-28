@@ -1,21 +1,25 @@
 `include "Cache_struct.sv"
 
 module Cache_mesi_fsm(
-input  logic  clk,
-input  logic  rstb,
-input  logic  PrRd,
-input  logic  PrWr,
-input  logic  BusUpgr_in,
-input  logic  BusRd_in,
-input  logic  BusRdX_in,
-input  logic  C_in,
-input  mesi_struct mesi_states_in,
+input  logic  clk, 			//clock signal
+input  logic  rstb, 			//Active low reset signal
+input  logic  PrRd,			//Processor-side(CPU) read signal
+input  logic  PrWr,			//Processor-side(CPU) write signal
+input  logic  BusUpgr_in,		//Bus Upgrade/Invalidate input signal
+input  logic  BusRd_in,			//Bus Read input signal
+input  logic  BusRdX_in,		//Bus read Exclusive input signal
+input  logic  C_in,			//An active low input signal when asserted displays
+					//that other caches has that cache line
 
-output logic  BusUpgr_out,
-output logic  BusRd_out,
-output logic  BusRdX_out,
-output logic  Flush,
-output mesi_struct mesi_states_out
+input  mesi_struct mesi_states_in,	//Input signals from cache to MESI logic
+
+output logic  BusUpgr_out,		//Bus Upgrade/Invalidate output signal
+output logic  BusRd_out,		//Bus Read output signal
+output logic  BusRdX_out,		//Bus read Exclusive output signal
+output logic  Flush,			//Flush signal-asserted high when sending an entire cache line back to DRAM
+output logic  C_out,			//An output signal asserted to display
+					//that the cache has that cache line
+output mesi_struct mesi_states_out	//Input signals from cache to MESI logic after update
 
 );
 
@@ -25,6 +29,8 @@ mesi_t currentstate, nextstate;
 
 assign mesi_states_out = currentstate;
 
+
+//MESI FSM starts
 always_ff @(posedge clk)
 	if(!rstb)
 	begin
@@ -46,6 +52,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 	    else if(BusRd_in)
 	    begin
@@ -54,6 +61,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 1;
+			C_out	    = 0;
 	    end
 			
 	    else if(BusRdX_in)
@@ -63,6 +71,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 1;
+			C_out	    = 0;
 	    end
 	    
 	    else
@@ -72,6 +81,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 			
@@ -83,6 +93,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	    else if(PrWr)
@@ -92,6 +103,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 			
 	    else if(BusRd_in)
@@ -101,6 +113,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 			
 	    else if(BusRdX_in)
@@ -110,6 +123,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	    else
@@ -119,6 +133,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	S : if(PrRd)
@@ -128,6 +143,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 1;
 	    end
 
 	    else if(PrWr)
@@ -137,6 +153,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	    else if(BusRd_in)
@@ -146,6 +163,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	    else if(BusRdX_in | BusUpgr_in)
@@ -155,6 +173,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	    else
@@ -164,6 +183,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	    end
 
 	I : 	if(BusRd_in | BusRdX_in | BusUpgr_in)
@@ -173,6 +193,7 @@ always_comb
 				BusRd_out   = 0;
 				BusRdX_out  = 0;
 				Flush	    = 0;
+				C_out	    = 0;
 		end
 
 		else if(PrRd)
@@ -184,6 +205,7 @@ always_comb
 				BusRd_out   = 1;
 				BusRdX_out  = 0;
 				Flush	    = 0;
+				C_out	    = 0;
 			end
 			else
 			begin
@@ -192,6 +214,7 @@ always_comb
 				BusRd_out   = 1;
 				BusRdX_out  = 0;
 				Flush	    = 0;
+				C_out	    = 0;
 			end
 		end
 
@@ -202,6 +225,7 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 1;
 			Flush	    = 0;
+			C_out	    = 0;
 		end
 
 	        else
@@ -211,10 +235,13 @@ always_comb
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
+			C_out	    = 0;
 	        end
 
 
 	default: nextstate = I;
    endcase
+
+//MESI FSM ends
 			
 endmodule

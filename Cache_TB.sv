@@ -7,6 +7,7 @@ int    file_read,ref_file_read_h;
 string line,ref_result;
 string all_ref_results[$];
 string filename;
+string compare_filename;
 logic  [15:0] idx_counter;
 logic  [31:0] address;
 logic  [3:0] n;
@@ -36,7 +37,8 @@ begin
 	#10;
 	current_idx = 0;
 
-	ref_file_h = $fopen("./filecompare.txt","r"); //opens the file
+	$value$plusargs("COMPAREFILE=%s",compare_filename);
+	ref_file_h = $fopen(compare_filename,"r");
 	while(!$feof(ref_file_h)) //up until end of file, this loop will run
 	begin
 		ref_file_read_h = $fscanf(ref_file_h,"%s",ref_result); //scaning the file and taking its contents in ref_result

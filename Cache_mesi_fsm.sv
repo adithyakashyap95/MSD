@@ -12,6 +12,7 @@ input  logic  C_in,			//An active low input signal when asserted displays
 					//that other caches has that cache line
 
 input  mesi_struct mesi_states_in,	//Input signals from cache to MESI logic
+input  logic  valid,
 
 output logic  BusUpgr_out,		//Bus Upgrade/Invalidate output signal
 output logic  BusRd_out,		//Bus Read output signal
@@ -25,17 +26,39 @@ output mesi_struct mesi_states_out	//Input signals from cache to MESI logic afte
 
 // `include "Cache_struct.sv"
 
-mesi_t currentstate, nextstate;
+mesi_t currentstate, nextstate, to_update_state;
 
-assign mesi_states_out = currentstate;
+always_comb
+begin
+	case(currentstate)
+		I:mesi_states_out=I;
+		E:mesi_states_out=E;
+		S:mesi_states_out=S;
+		M:mesi_states_out=M;
+		default:mesi_states_out=I;
+	endcase
+end
 
+always_comb
+begin
+	case(mesi_states_in)
+		I:to_update_state=I;
+		E:to_update_state=E;
+		S:to_update_state=S;
+		M:to_update_state=M;
+		default:to_update_state=I;
+	endcase
+end
 
 //MESI FSM starts
 always_ff @(posedge clk)
 	if(!rstb)
 	begin
 		currentstate <= I;
-		
+	end
+	else if(valid)
+	begin
+		currentstate <= to_update_state;
 	end
 	else
 	begin

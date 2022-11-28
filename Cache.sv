@@ -37,6 +37,7 @@ logic 				BusUpgr_out;
 logic 				BusRd_out;
 logic 				BusRdX_out;
 logic 				Flush;
+logic				C_out;
 
 // Could have selected a vector but this will be easy i the waves
 logic 				opr_1;
@@ -47,6 +48,14 @@ logic 				opr_5;
 logic 				opr_6;
 logic 				opr_7;
 logic 				opr_8;
+logic 				opr_1_pulse;
+logic 				opr_2_pulse;
+logic 				opr_3_pulse;
+logic 				opr_4_pulse;
+logic 				opr_5_pulse;
+logic 				opr_6_pulse;
+logic 				opr_7_pulse;
+logic 				opr_8_pulse;
 
 logic 				opr_finished;
 
@@ -55,6 +64,8 @@ logic 				rstb_comb; // created the combi logic to reset it
 
 mesi_struct			mesi_states_in;   // Use this to update in cache
 mesi_struct			mesi_states_out;  // Use this to update in FSM
+
+logic 				valid_2d;	// 2 cycles delayed
 
 // This modukle generates the necessary pulses for each module to operate
 // FIXME: Give this output to 
@@ -70,7 +81,16 @@ Cache_opr_ctrl i_opr_ctrl (
 	.opr_5		(opr_5		),
 	.opr_6		(opr_6		),
 	.opr_7		(opr_7		),
-	.opr_8		(opr_8		)
+	.opr_8		(opr_8		),
+	.opr_1_pulse	(opr_1_pulse	),
+	.opr_2_pulse	(opr_2_pulse	),
+	.opr_3_pulse	(opr_3_pulse	),
+	.opr_4_pulse	(opr_4_pulse	),
+	.opr_5_pulse	(opr_5_pulse	),
+	.opr_6_pulse	(opr_6_pulse	),
+	.opr_7_pulse	(opr_7_pulse	),
+	.opr_8_pulse	(opr_8_pulse	),
+	.valid_2d	(valid_2d	)   // FIXME delete if not used
 );
 
 // Counter for HIt and Miss
@@ -185,11 +205,13 @@ Cache_mesi_fsm#(
 	.BusRdX_in	(BusRdX_in	),
 	.C_in		(C_in		),
 	.mesi_states_in	(mesi_states_in ),
+	.valid		(valid		),
 
 	.BusUpgr_out	(BusUpgr_out	),
 	.BusRd_out	(BusRd_out	),
 	.BusRdX_out	(BusRdX_out	),
 	.Flush		(Flush		),
+	.C_out 		(C_out		),
 	.mesi_states_out(mesi_states_out)
 );
 
@@ -202,9 +224,9 @@ begin
 	begin
 		sets <= 0;
 	end
-	else if(update_sets)
+	else if(update_sets)// update here FIXME
 	begin
-		sets <= sets_nxt; // update here FIXME
+		sets <= sets_nxt; 
 	end
 	else
 	begin
@@ -218,11 +240,33 @@ end
 
 always_comb
 begin
+	sets_nxt = sets;
+	update_sets = opr_1_pulse; // Update here sp that cache gets upated with actual values : FIXME
 	//update_sets = (n_in==WRITE_REQ_L1_D)&(opr_finished); // Should add cases of evictions and stuff 
-	update_sets = 0;	
 	// read miss then also we need to get it from cache
 	sets_nxt[index_in].line[ways_in].tag = tag_in; 
 	//sets_nxt[index_in].line[ways_in].byte_select = byte_offset_in; 
+	plru_in = sets[index_in].plru;
+	sets_nxt[index_in].plru = plru_out;
+
+
+// Instead of typecast :( replace it once you get to know how to type cast
+	case(sets[index_in].line[ways_in].mesi)
+		I:mesi_states_in=I;
+		E:mesi_states_in=E;
+		S:mesi_states_in=S;
+		M:mesi_states_in=M;
+		default:mesi_states_in=I;
+	endcase
+
+	case(mesi_states_out)
+		I:sets_nxt[index_in].line[ways_in].mesi=I;
+		E:sets_nxt[index_in].line[ways_in].mesi=E;
+		S:sets_nxt[index_in].line[ways_in].mesi=S;
+		M:sets_nxt[index_in].line[ways_in].mesi=M;
+		default:sets_nxt[index_in].line[ways_in].mesi=I;
+	endcase
+
 end
 
 endmodule

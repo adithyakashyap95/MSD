@@ -17,7 +17,7 @@ typedef struct packed
 {
   mesi_t  mesi;                      // MESI state replacing valid and dirty
   logic  [(INDEX-1):0] tag;           // REPLACE TAG 
-  logic  [(BYTE-1):0]  byte_select;   // Byte select
+//  logic  [(BYTE-1):0]  byte_select;   // Byte select
 } line_t;
 
 typedef struct packed

@@ -51,7 +51,7 @@ begin
 end
 
 //MESI FSM starts
-always_ff @(posedge clk)
+always_ff @(posedge clk or negedge rstb)
 	if(!rstb)
 	begin
 		currentstate <= I;

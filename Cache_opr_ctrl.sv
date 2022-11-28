@@ -120,7 +120,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end
-	else if(cntr_opr>7)
+	else if(cntr_opr>2)
 	begin
 		opr_1 = 1;
 		opr_2 = 0;
@@ -131,7 +131,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>15)
+	else if(cntr_opr>4)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;
@@ -142,7 +142,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>23)
+	else if(cntr_opr>6)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;
@@ -153,7 +153,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>31)
+	else if(cntr_opr>8)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;
@@ -164,7 +164,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>39)
+	else if(cntr_opr>10)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;
@@ -175,7 +175,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>47)
+	else if(cntr_opr>12)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;
@@ -186,7 +186,7 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>55)
+	else if(cntr_opr>14)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;
@@ -197,7 +197,7 @@ begin
 		opr_7 = 1;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>63)
+	else if(cntr_opr>16)
 	begin
 		opr_1 = 1;
 		opr_2 = 1;

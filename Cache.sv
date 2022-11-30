@@ -192,7 +192,7 @@ Cache_replacement_algorithm #(
 	4. DATA transfer based on Hit and Miss.
 	5. Monitor the snoop and give iut snoop result.
 */
-
+// FIXME needs to be updated based on updates in MESI
 Cache_mesi_fsm#(
 
 ) i_mesi_fsm (
@@ -275,9 +275,6 @@ endmodule
 // POINTS TO IMPLEMENT
 //
 // Write to cache based on many events those events must be mentioned 
-// Cache is acting as memory ? Check that ? 
-// Should way be getting from cache_read_hit module or not  ?? test it 
-// Tri stating the Output ?? Or should we give the output in enum only ?
 // should implement the output in series like opr_1 then opr_2 then opr_3
 // HIT should happen only when it is not in invalid state add that condiition
 // 

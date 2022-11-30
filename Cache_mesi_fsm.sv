@@ -1,5 +1,7 @@
 `include "Cache_struct.sv"
 
+// NISHKA FIXME : REPLACE THE OUTPUT/INPUT PORT WITH OUTPUT/INPUT ENUM LOGIC: REFER cache_struct.sv
+
 module Cache_mesi_fsm(
 input  logic  clk, 			//clock signal
 input  logic  rstb, 			//Active low reset signal

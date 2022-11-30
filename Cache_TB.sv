@@ -37,8 +37,12 @@ begin
 	#10;
 	current_idx = 0;
 
-	$value$plusargs("COMPAREFILE=%s",compare_filename);
-	ref_file_h = $fopen(compare_filename,"r");
+	if ($value$plusargs("COMPAREFILE=%s",compare_filename))//for default trace file 
+		ref_file_h = $fopen(compare_filename,"r");
+	else 
+	begin
+		ref_file_h = $fopen("./filecompare.txt","r");
+	end
 	while(!$feof(ref_file_h)) //up until end of file, this loop will run
 	begin
 		ref_file_read_h = $fscanf(ref_file_h,"%s",ref_result); //scaning the file and taking its contents in ref_result

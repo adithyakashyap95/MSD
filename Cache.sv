@@ -154,7 +154,7 @@ assign byte_offset_in = address[(BYTE-1):0];
 	2. Way to be replaced at eviction --> a) Which set
 */
 
-//small module to be coded for the Read hit case so that it compares the
+// small module coded for the hit case so that it compares the
 // tag incoming qnd exisitng and get the way from it : Cache_read_hit
 
 assign read = ((n_in==READ_REQ_L1_D)|(n_in==READ_REQ_L1_I)|(n_in==WRITE_REQ_L1_D));

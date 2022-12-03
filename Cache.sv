@@ -248,6 +248,7 @@ begin
 	//sets_nxt[index_in].line[ways_in].byte_select = byte_offset_in; 
 	plru_in = sets[index_in].plru;
 	sets_nxt[index_in].plru = plru_out;
+	opr_finished = opr_8_pulse;
 
 
 // Instead of typecast :( replace it once you get to know how to type cast

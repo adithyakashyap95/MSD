@@ -56,13 +56,13 @@ begin
 	begin
 		cntr_opr <= 0;
 	end
-	else if((valid)|(cntr_opr>0))
-	begin
-		cntr_opr <= cntr_opr + 1;
-	end
 	else if(opr_finished)
 	begin
 		cntr_opr <= 0;
+	end	
+	else if((valid)|(cntr_opr>0))
+	begin
+		cntr_opr <= cntr_opr + 1;
 	end
 	else
 	begin
@@ -120,11 +120,66 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end
-	else if(cntr_opr>4)
+	else if(cntr_opr>32)
 	begin
 		opr_1 = 1;
-		opr_2 = 0;
-		opr_3 = 0;
+		opr_2 = 1;
+		opr_3 = 1;
+		opr_4 = 1;
+		opr_5 = 1;
+		opr_6 = 1;
+		opr_7 = 1;
+		opr_8 = 1;
+	end	
+	else if(cntr_opr>28)
+	begin
+		opr_1 = 1;
+		opr_2 = 1;
+		opr_3 = 1;
+		opr_4 = 1;
+		opr_5 = 1;
+		opr_6 = 1;
+		opr_7 = 1;
+		opr_8 = 0;
+	end	
+	else if(cntr_opr>24)
+	begin
+		opr_1 = 1;
+		opr_2 = 1;
+		opr_3 = 1;
+		opr_4 = 1;
+		opr_5 = 1;
+		opr_6 = 1;
+		opr_7 = 0;
+		opr_8 = 0;
+	end	
+	else if(cntr_opr>20)
+	begin
+		opr_1 = 1;
+		opr_2 = 1;
+		opr_3 = 1;
+		opr_4 = 1;
+		opr_5 = 1;
+		opr_6 = 0;
+		opr_7 = 0;
+		opr_8 = 0;
+	end	
+	else if(cntr_opr>16)
+	begin
+		opr_1 = 1;
+		opr_2 = 1;
+		opr_3 = 1;
+		opr_4 = 1;
+		opr_5 = 0;
+		opr_6 = 0;
+		opr_7 = 0;
+		opr_8 = 0;
+	end	
+	else if(cntr_opr>12)
+	begin
+		opr_1 = 1;
+		opr_2 = 1;
+		opr_3 = 1;
 		opr_4 = 0;
 		opr_5 = 0;
 		opr_6 = 0;
@@ -142,71 +197,16 @@ begin
 		opr_7 = 0;
 		opr_8 = 0;
 	end	
-	else if(cntr_opr>12)
+	else if(cntr_opr>4)
 	begin
 		opr_1 = 1;
-		opr_2 = 1;
-		opr_3 = 1;
+		opr_2 = 0;
+		opr_3 = 0;
 		opr_4 = 0;
 		opr_5 = 0;
 		opr_6 = 0;
 		opr_7 = 0;
 		opr_8 = 0;
-	end	
-	else if(cntr_opr>16)
-	begin
-		opr_1 = 1;
-		opr_2 = 1;
-		opr_3 = 1;
-		opr_4 = 1;
-		opr_5 = 0;
-		opr_6 = 0;
-		opr_7 = 0;
-		opr_8 = 0;
-	end	
-	else if(cntr_opr>20)
-	begin
-		opr_1 = 1;
-		opr_2 = 1;
-		opr_3 = 1;
-		opr_4 = 1;
-		opr_5 = 1;
-		opr_6 = 0;
-		opr_7 = 0;
-		opr_8 = 0;
-	end	
-	else if(cntr_opr>24)
-	begin
-		opr_1 = 1;
-		opr_2 = 1;
-		opr_3 = 1;
-		opr_4 = 1;
-		opr_5 = 1;
-		opr_6 = 1;
-		opr_7 = 0;
-		opr_8 = 0;
-	end	
-	else if(cntr_opr>28)
-	begin
-		opr_1 = 1;
-		opr_2 = 1;
-		opr_3 = 1;
-		opr_4 = 1;
-		opr_5 = 1;
-		opr_6 = 1;
-		opr_7 = 1;
-		opr_8 = 0;
-	end	
-	else if(cntr_opr>32)
-	begin
-		opr_1 = 1;
-		opr_2 = 1;
-		opr_3 = 1;
-		opr_4 = 1;
-		opr_5 = 1;
-		opr_6 = 1;
-		opr_7 = 1;
-		opr_8 = 1;
 	end	
 	else
 	begin

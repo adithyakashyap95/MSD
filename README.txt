@@ -21,9 +21,5 @@
 #
 #
 #
-#
-#
-#
-#
-#
-#
+#basic_memory_test contains 0-F in read and write modes.
+#PLRU_test1 & PLRU_test2 are for testing working of PLRU. 

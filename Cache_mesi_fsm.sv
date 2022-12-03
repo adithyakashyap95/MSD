@@ -15,6 +15,7 @@ input  logic  C_in,			//An active low input signal when asserted displays
 
 input  mesi_struct mesi_states_in,	//Input signals from cache to MESI logic
 input  logic  valid,
+input n_struct nmsg_in,
 
 output logic  BusUpgr_out,		//Bus Upgrade/Invalidate output signal
 output logic  BusRd_out,		//Bus Read output signal
@@ -22,8 +23,10 @@ output logic  BusRdX_out,		//Bus read Exclusive output signal
 output logic  Flush,			//Flush signal-asserted high when sending an entire cache line back to DRAM
 output logic  C_out,			//An output signal asserted to display
 					//that the cache has that cache line
-output mesi_struct mesi_states_out	//Input signals from cache to MESI logic after update
+output mesi_struct mesi_states_out,	//Input signals from cache to MESI logic after update
 
+output bus_struct bus_func_out,
+output l2tol1_struct l2tol1msg_out
 );
 
 // `include "Cache_struct.sv"
@@ -67,200 +70,242 @@ always_ff @(posedge clk or negedge rstb)
 		currentstate <= nextstate;
 		
 	end
-
+// make it pulse accurate : FIXME : Adithya
+// inclusivity is almost maintained: Check again in test case seperate code not req: Adithya
 always_comb
    case(currentstate)
-	M : if(PrRd | PrWr)
+	M : if (nmsg_in == (READ_REQ_L1_D | WRITE_REQ_L1_D))
 	    begin
 		nextstate = M;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = SENDLINE;
 	    end
-	    else if(BusRd_in)
+	    else if(nmsg_in == SNOOP_READ_REQ)
 	    begin
 		nextstate   = S;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 1;
-			C_out	    = 0;
+			C_out	    = 0; */
+			bus_func_out  = WRITE;
+			l2tol1msg_out = EVICTLINE; 
 	    end
 			
-	    else if(BusRdX_in)
+	    else if(nmsg_in == SNOOP_READ_WITH_M)
 	    begin
 		nextstate   = I;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 1;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = WRITE;
+			l2tol1msg_out = EVICTLINE; 
 	    end
 	    
 	    else
 	    begin
 	    	nextstate   = M;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = NULLMsg;
+
+			
 	    end
 
 			
 
-	E : if(PrRd)
+	E : if(nmsg_in == READ_REQ_L1_D)
 	    begin
 		nextstate = E;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = SENDLINE;
 	    end
 
-	    else if(PrWr)
+	    else if(nmsg_in == WRITE_REQ_L1_D)
 	    begin
 		nextstate   = M;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = GETLINE;
 	    end
 			
-	    else if(BusRd_in)
+	    else if(nmsg_in == SNOOP_READ_REQ)
 	    begin
 		nextstate   = S;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = SENDLINE;
 	    end
 			
-	    else if(BusRdX_in)
+	    else if(nmsg_in == SNOOP_READ_WITH_M)
 	    begin
 		nextstate   = I;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = INVALIDATELINE;
 	    end
 
 	    else
 	    begin
 	    	nextstate   = E;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = NULLMsg;
 	    end
 
-	S : if(PrRd)
+	S : if(nmsg_in == READ_REQ_L1_D)
 	    begin
 		nextstate = S;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 1;
+			C_out	    = 1;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = SENDLINE;
 	    end
 
-	    else if(PrWr)
+	    else if(nmsg_in == WRITE_REQ_L1_D)
 	    begin
 		nextstate   = M;
-			BusUpgr_out = 1;
+			/*BusUpgr_out = 1;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = INVALIDATE;
+			l2tol1msg_out = GETLINE;
 	    end
 
-	    else if(BusRd_in)
+	    else if(nmsg_in == READ_REQ_L1_D)
 	    begin
 		nextstate   = S;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = SENDLINE;
 	    end
 
-	    else if(BusRdX_in | BusUpgr_in)
+	    else if((nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_INVALID_CMD))
 	    begin
 		nextstate   = I;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = INVALIDATELINE;
 	    end
 
 	    else
 	    begin
 	    	nextstate   = S;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = NULLMsg;
+
 	    end
 
-	I : 	if(BusRd_in | BusRdX_in | BusUpgr_in)
+	I : 	if((nmsg_in == READ_REQ_L1_D) | (nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_INVALID_CMD))
 		begin
 			nextstate   = I;
-				BusUpgr_out = 0;
+				/*BusUpgr_out = 0;
 				BusRd_out   = 0;
 				BusRdX_out  = 0;
 				Flush	    = 0;
-				C_out	    = 0;
+				C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = INVALIDATELINE;
 		end
 
-		else if(PrRd)
+		else if(nmsg_in == READ_REQ_L1_D)
 		begin
 			if(C_in)
 			begin
 			nextstate = S;
-				BusUpgr_out = 0;
+				/*BusUpgr_out = 0;
 				BusRd_out   = 1;
 				BusRdX_out  = 0;
 				Flush	    = 0;
-				C_out	    = 0;
+				C_out	    = 0;*/
+				bus_func_out  = READ;
+				l2tol1msg_out = SENDLINE;
 			end
 			else
 			begin
 			nextstate = E;
-				BusUpgr_out = 0;
+				/*BusUpgr_out = 0;
 				BusRd_out   = 1;
 				BusRdX_out  = 0;
 				Flush	    = 0;
-				C_out	    = 0;
+				C_out	    = 0;*/
+				bus_func_out  = READ;
+				l2tol1msg_out = SENDLINE;
 			end
 		end
 
-		else if(PrWr)
+		else if(nmsg_in == WRITE_REQ_L1_D)
 		begin
 		nextstate   = M;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 1;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = RWIM;
+			l2tol1msg_out = GETLINE;
 		end
 
 	        else
 	        begin
 	    	nextstate   = I;
-			BusUpgr_out = 0;
+			/*BusUpgr_out = 0;
 			BusRd_out   = 0;
 			BusRdX_out  = 0;
 			Flush	    = 0;
-			C_out	    = 0;
+			C_out	    = 0;*/
+			bus_func_out  = NULL;
+			l2tol1msg_out = NULLMsg;
 	        end
 
 

@@ -39,13 +39,25 @@ typedef enum logic[3:0]
   PRINT_CONTENTS    = 4'd9   // print contents and state of each valid cache line (doesn?t end simulation!)
 } n_t;
 
+typedef struct packed
+{
+ n_t nmsg;
+ }n_struct;
+
 typedef enum logic[2:0]
 {
   READ       = 3'd1,       /* Bus Read */
-  WRITE      = 3'd2,       /* Bus Write */
-  INVALIDATE = 3'd3,       /* Bus Invalidate */
-  RWIM       = 3'd4        /* Bus Read With Intent to Modify */
+  INVALIDATE = 3'd2,       /* Bus Invalidate */
+  RWIM       = 3'd3,       /* Bus Read With Intent to Modify */
+  NULL	     = 3'd4,	   /* No Bus output*/
+  WRITE	     = 3'd5 	   /* Bus Flush(DRAM Write) */
 } bus_func_t;
+
+typedef struct packed
+{
+ bus_func_t bus;
+ }bus_struct;
+
 
 typedef enum logic[1:0]
 {
@@ -54,13 +66,26 @@ typedef enum logic[1:0]
   HITM      = 2'd2         /* Hit to modified line */
 } hit_miss_t;
 
+typedef struct packed
+{
+ hit_miss_t hitmiss;
+ }hitmiss_struct;
+
+
 typedef enum logic[2:0]
 {
-  GETLINE        = 2'd1,   /* Request data for modified line in L1 */
-  SENDLINE       = 2'd2,   /* Send requested cache line to L1 */
-  INVALIDATELINE = 2'd3,   /* Invalidate a line in L1 */
-  EVICTLINE      = 2'd4    /* Evict a line from L1 */
+  GETLINE        = 3'd1,   /* Request data for modified line in L1 */
+  SENDLINE       = 3'd2,   /* Send requested cache line to L1 */
+  INVALIDATELINE = 3'd3,   /* Invalidate a line in L1 */
+  EVICTLINE      = 3'd4,   /* Evict a line from L1 */
+  NULLMsg        = 3'd5,   /* No message from l2 to l1*/
+  FLUSH 	 = 3'd6	   /* FIXME */
 } l2_to_l1_msg_t;
+
+typedef struct packed
+{
+ l2_to_l1_msg_t l2tol1;
+ }l2tol1_struct;
 
 // this is when L2's replacement policy causes eviction of a line that
 // may be present in L1. It could be done by a combination of GETLINE

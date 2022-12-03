@@ -30,3 +30,6 @@ hit
 hit
 hit
 hit
+miss
+miss
+miss

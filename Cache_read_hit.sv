@@ -16,22 +16,7 @@ module Cache_hit #(
 logic [WAYS_REP-1:0] cntr;
 logic        	     cmpr_hit;
 
-/*
-
-Delay it accordingly
-
-always_ff @(posedge clk or negedge rstb)
-begin
-	if(rstb==0)
-		cntr <= 0;
-	else if(!read)     // What all read should we choose for this : FIXME
-		cntr <= 0;
-	else if(cmpr_hit)
-		cntr <= cntr;
-	else
-		cntr <= cntr + 1;
-end
-*/
+// Delay it accordingly
 
 always_comb
 begin

@@ -1,4 +1,4 @@
-
+`include "Cache_struct.sv"
 module cache #(
 // All are taken as local parm 
 )(
@@ -7,14 +7,18 @@ module cache #(
 	input  logic [31:0]     address,
 	input  logic  [3:0]     n,
 	input  logic 		valid,
-	output logic [15:0]	hit_cntr,   // Counter to count the number of HITS
-	output logic [15:0]     miss_cntr   // Counter to count the number of MISS
-);
+	output logic [15:0]	hit_cntr,    // Counter to count the number of HITS
+	output logic [15:0]     miss_cntr,   // Counter to count the number of MISS
+	output bus_struct 	bus_func_out,
+	output l2tol1_struct 	l2tol1msg_out
 
-`include "Cache_struct.sv"
+// FIXME add C_IN AND C_OUT 
+);
 
 sets_nway_t [(NUM_OF_SETS-1):0] sets;
 sets_nway_t [(NUM_OF_SETS-1):0] sets_nxt;
+
+sets_nway_t    			set_disp;
 n_t				n_in;
 logic                           update_sets;
 logic [(TAG-1):0]               tag_in;       
@@ -27,35 +31,14 @@ logic [WAYS_REP-1:0]        	way_read_hit;
 logic 				read;
 logic 				cmpr_read_hit;
 
-logic 				PrRd;
-logic 				PrWr;
-logic 				BusUpgr_in;
-logic 				BusRd_in;
-logic 				BusRdX_in;
 logic 				C_in;
-logic 				BusUpgr_out;
-logic 				BusRd_out;
-logic 				BusRdX_out;
-logic 				Flush;
 logic				C_out;
 
 // Could have selected a vector but this will be easy i the waves
 logic 				opr_1;
 logic 				opr_2;
-logic 				opr_3;
-logic 				opr_4;
-logic 				opr_5;
-logic 				opr_6;
-logic 				opr_7;
-logic 				opr_8;
 logic 				opr_1_pulse;
 logic 				opr_2_pulse;
-logic 				opr_3_pulse;
-logic 				opr_4_pulse;
-logic 				opr_5_pulse;
-logic 				opr_6_pulse;
-logic 				opr_7_pulse;
-logic 				opr_8_pulse;
 
 logic 				opr_finished;
 
@@ -76,20 +59,9 @@ Cache_opr_ctrl i_opr_ctrl (
 	.opr_finished	(opr_finished	),
 	.opr_1		(opr_1		),
 	.opr_2		(opr_2		),
-	.opr_3		(opr_3		),
-	.opr_4		(opr_4		),
-	.opr_5		(opr_5		),
-	.opr_6		(opr_6		),
-	.opr_7		(opr_7		),
-	.opr_8		(opr_8		),
 	.opr_1_pulse	(opr_1_pulse	),
 	.opr_2_pulse	(opr_2_pulse	),
-	.opr_3_pulse	(opr_3_pulse	),
-	.opr_4_pulse	(opr_4_pulse	),
-	.opr_5_pulse	(opr_5_pulse	),
-	.opr_6_pulse	(opr_6_pulse	),
-	.opr_7_pulse	(opr_7_pulse	),
-	.opr_8_pulse	(opr_8_pulse	),
+	.valid_d	(valid_d	),
 	.valid_2d	(valid_2d	)   // FIXME delete if not used
 );
 
@@ -102,12 +74,12 @@ begin
 		hit_cntr  <= '0;
 		miss_cntr <= '0;
 	end
-	else if (opr_finished & (cmpr_read_hit))
+	else if (valid_d & (cmpr_read_hit))
 	begin
 		hit_cntr  <= hit_cntr + 1;
 		miss_cntr <= miss_cntr;
 	end
-	else if (opr_finished & (~cmpr_read_hit))
+	else if (valid_d & (~cmpr_read_hit))
 	begin
 		hit_cntr  <= hit_cntr;
 		miss_cntr <= miss_cntr + 1;
@@ -193,29 +165,28 @@ Cache_replacement_algorithm #(
 	5. Monitor the snoop and give iut snoop result.
 */
 // FIXME needs to be updated based on updates in MESI
+// Model C_in and C_out
+// Model Hit, HitM and Miss
+
 Cache_mesi_fsm#(
 
 ) i_mesi_fsm (
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
-	.PrRd		(PrRd		),
-	.PrWr		(PrWr 		),
-	.BusUpgr_in	(BusUpgr_in	),
-	.BusRd_in	(BusRd_in	),
-	.BusRdX_in	(BusRdX_in	),
-	.C_in		(C_in		),
+	.C_in		(C_in		), // should be driven from top level
 	.mesi_states_in	(mesi_states_in ),
 	.valid		(valid		),
+	.valid_d	(valid_d	),
+	.nmsg_in	(n_in		),
 
-	.BusUpgr_out	(BusUpgr_out	),
-	.BusRd_out	(BusRd_out	),
-	.BusRdX_out	(BusRdX_out	),
-	.Flush		(Flush		),
-	.C_out 		(C_out		),
-	.mesi_states_out(mesi_states_out)
+	.C_out 		(C_out		), // should be driven to top level
+	.mesi_states_out(mesi_states_out),
+	.bus_func_out	(bus_func_out	),
+	.l2tol1msg_out	(l2tol1msg_out	)
 );
 
 // CORE LOGIC starts from here
+
 
 // Creating flops for the whole cache
 always_ff@(posedge clk or negedge rstb_comb)
@@ -237,18 +208,23 @@ end
 // Combi logic for the next signal; generate a update signal when all are ready to go inside the cache and check for updates
 // Update below combi logic which is wrong
 // FIXME : How to write to cache coming in..... Think on this 
+// Inclusivity should be implemented: Evicting a line from L1 as well when L2 is eviciting
 
 always_comb
 begin
 	sets_nxt = sets;
 	update_sets = opr_1_pulse; // Update here sp that cache gets upated with actual values : FIXME
-	//update_sets = (n_in==WRITE_REQ_L1_D)&(opr_finished); // Should add cases of evictions and stuff 
+	// update_sets = (n_in==WRITE_REQ_L1_D)&(opr_finished); // Should add cases of evictions and stuff 
 	// read miss then also we need to get it from cache
 	sets_nxt[index_in].line[ways_in].tag = tag_in; 
 	//sets_nxt[index_in].line[ways_in].byte_select = byte_offset_in; 
 	plru_in = sets[index_in].plru;
 	sets_nxt[index_in].plru = plru_out;
-	opr_finished = opr_8_pulse;
+	opr_finished = opr_2_pulse;
+
+	set_disp = sets[0];
+
+// Update bus function and L2 2 L1 msg to cache logic 
 
 
 // Instead of typecast :( replace it once you get to know how to type cast

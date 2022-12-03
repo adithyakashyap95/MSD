@@ -1,3 +1,4 @@
+`include "Cache_struct.sv"
 module cache_TB;
 
 logic  clk;
@@ -16,6 +17,8 @@ logic  [15:0] miss_cntr;
 logic  [15:0] hit_cntr;
 static int i = 0;
 static logic [15:0] current_idx;
+bus_struct 	bus_func_out;
+l2tol1_struct 	l2tol1msg_out;
 
 cache #(
 	
@@ -26,12 +29,16 @@ cache #(
     	.n		(n		),
 	.valid 		(valid		),
 	.hit_cntr	(hit_cntr	),
-	.miss_cntr	(miss_cntr	)
+	.miss_cntr	(miss_cntr	),
+	.bus_func_out	(bus_func_out	),
+	.l2tol1msg_out	(l2tol1msg_out	)
+
 );
 
 initial 
 begin
   	rstb = 0;
+	valid = 0;
 	#20;
 	rstb = 1;
 	#10;
@@ -86,7 +93,7 @@ $display("n address \n");
 		$fgets(line,event_open);
 		$display("%s ",line);
 	end*/
- 	
+ 	#6; // Valid to match with clock
 	while(!$feof(event_open)) //up until end of file, this loop will run, event_open is the filename variable
     	begin
         	valid = 1'b1; //valid set to 1

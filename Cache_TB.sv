@@ -19,6 +19,21 @@ static int i = 0;
 static logic [15:0] current_idx;
 bus_struct 	bus_func_out;
 l2tol1_struct 	l2tol1msg_out;
+logic [15:0] read_cntr, write_cntr;
+logic [15:0] access_total;
+logic [1:0] C;
+string h=" ";
+
+initial
+begin
+case(C)
+2'b00 : h= "HIT";
+2'b01 : h= "HITM";
+2'b1X : h= "NO HIT";
+endcase
+end
+
+assign access_total=miss_cntr+hit_cntr;
 
 cache #(
 	
@@ -34,6 +49,21 @@ cache #(
 	.l2tol1msg_out	(l2tol1msg_out	)
 
 );
+
+initial   /////Number of cache reads and number of cache writes
+begin
+read_cntr=0;
+write_cntr=0;
+if(n==4'b0000 | n==4'b0010)
+read_cntr= read_cntr+1;
+
+else if(n==4'b0001)
+write_cntr=write_cntr+1;
+
+else
+read_cntr=read_cntr;
+write_cntr=write_cntr;
+end
 
 initial 
 begin
@@ -65,8 +95,15 @@ begin
 	else
 		$display("trace file cannot be opened");
 
-	if($test$plusargs ("silent"))
-		$display("silent Mode is  used");
+	if($test$plusargs ("silent") | ("Silent")| ("s") | ("S")|("SILENT"))
+	begin
+	$display("Silent mode is selected");
+	$display("Number of cache reads = %d", read_cntr);
+	$display("Number of cache writes = %d", write_cntr);
+	$display("Number of cache hits = %d", hit_cntr);
+	$display("Number of cache misses = %d", miss_cntr);	
+	end
+		/*$display("silent Mode is  used");
 	else if($test$plusargs ("Silent"))
 		$display("silent Mode is  used");
 	else if($test$plusargs ("s"))
@@ -74,18 +111,27 @@ begin
 	else if($test$plusargs ("S"))
 		$display("silent Mode is  used");
 	else if($test$plusargs ("SILENT"))
-		$display("silent Mode is  used");
+		$display("silent Mode is  used");*/
 	
-	if($test$plusargs ("normal"))
+	if($test$plusargs ("normal")|("Normal")|"n"|"N"|"NORMAL")
+	begin
 		$display("normal Mode is  used");
-	else if($test$plusargs ("Normal"))
+		$display("Number of cache reads = %d", read_cntr);
+		$display("Number of cache writes = %d", write_cntr);
+		$display("Number of cache hits = %d", hit_cntr);
+		$display("Number of cache misses = %d", miss_cntr);
+		$monitor("Address = %h, Bus operation = %s, snoopresult=%s",address, bus_func_out, h);
+		$monitor("Address = %h, Message = %s",address, l2_to_l1_msg_t);
+	end
+
+	/*else if($test$plusargs ("Normal"))
 		$display("normal Mode is  used");
 	else if($test$plusargs ("n"))
 		$display("normal Mode is  used");
 	else if($test$plusargs ("N"))
 		$display("normal Mode is  used");
 	else if($test$plusargs ("NORMAL"))
-		$display("normal Mode is  used");
+		$display("normal Mode is  used");*/
 /*$display(" ");
 $display("n address \n");
     for (int i=0;i<6;i=i+1)

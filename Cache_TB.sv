@@ -102,8 +102,18 @@ $display("n address \n");
 		repeat(1) @(posedge clk) valid = 1'b0; //valid set to 0
 		$display("Valid = %0b, n = %0d, address = %h, Hit = %0d, Miss = %0d",valid,n,address,hit_cntr,miss_cntr);
 		repeat(100) @(posedge clk);     //valid that is set to 0 will be repeated for 100 clock cycles
-		compare_tracefiles(hit_cntr,miss_cntr,current_idx,all_ref_results);//remove current_idx once DUT hits/misses are working //task is being called
-		current_idx = current_idx + 1;//remove this line if hits/misses from DUT are working    
+		if ((filename == "PLRU_test1.txt" || filename == "PLRU_test2.txt") && (compare_filename == "comparePLRU_test1.txt" || compare_filename == "comparePLRU_test2.txt"))
+		begin
+			PLRU_comparetest(DUT.ways_in, current_idx,all_ref_results); 
+			current_idx = current_idx + 1;
+		end
+		else if((filename == "basic_memory_test.txt") && (compare_filename == "filecompare.txt"))
+		begin
+			compare_tracefiles(hit_cntr,miss_cntr,current_idx,all_ref_results);//remove current_idx once DUT hits/misses are working //task is being called
+			current_idx = current_idx + 1;//remove this line if hits/misses from DUT are working    
+		end
+		else
+			$display("Input File and Reference File mismatch! Please check the filenames given in the command");
     	end
 	$fclose(event_open); //closes the file
 	//#10 $stop;
@@ -144,5 +154,17 @@ task compare_tracefiles(
 				$display("Mismatch!!! H=%0d, M=%0d, IDX = %0d",hits,misses,current_idx);
 		//end
 		//-----------------------------------------------------------
+	end
+endtask
+task PLRU_comparetest(
+	input [WAYS_REP-1:0] ways_in, [15:0] current_idx, input string all_ref_results[$]
+	);
+	begin
+		if(all_ref_results[current_idx].atohex() == ways_in)  //comparing; atohex used to convert the string to a number
+		begin
+			$display("Output matches with the expected.");
+		end
+		else
+			$display("Mismatch!!!");
 	end
 endtask

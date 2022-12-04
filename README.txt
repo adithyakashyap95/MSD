@@ -21,9 +21,10 @@
 #
 #
 #
-#basic_memory_test.txt contains 0-F in read and write modes.
-#tracefile.txt contains >32k memory addresses.
-#filecompare.txt contains the reference output for hit and miss in basic_memory_test.txt.
-#PLRU_test1.txt & PLRU_test2.txt are for testing the working of PLRU. 
-#comparePLRU_test1.txt & comparePLRU_test2.txt contains the reference output for PLRU_test1.txt & PLRU_test2.txt.
-#
+# basic_memory_test.txt contains 0-F in read and write modes.
+# tracefile.txt contains >32k memory addresses.
+# filecompare.txt contains the reference output for hit and miss in basic_memory_test.txt.
+# PLRU_test1.txt & PLRU_test2.txt are for testing the working of PLRU. 
+# comparePLRU_test1.txt & comparePLRU_test2.txt contains the reference output for PLRU_test1.txt & PLRU_test2.txt.
+# PLRU_test1 = Not Deviating from LRU
+# PLRU_test2 = Deviating from LRU

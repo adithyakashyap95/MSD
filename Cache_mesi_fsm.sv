@@ -82,29 +82,27 @@ always_ff @(posedge clk or negedge rstb)
 		l2tol1msg_out <= l2tol1msg_out;
 	end
 
-
-// make it pulse accurate : FIXME : Adithya
 // inclusivity is almost maintained: Check again in test case seperate code not req: Adithya
 
 always_comb
    case(currentstate)
-	M : if ((nmsg_in == READ_REQ_L1_D) | (nmsg_in == WRITE_REQ_L1_D))
+	M : if ((nmsg_in == READ_REQ_L1_D) | (nmsg_in == READ_REQ_L1_I) | (nmsg_in == WRITE_REQ_L1_D))
 	    begin
 		nextstate         = M;
 		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = SENDLINE;
+		nxt_l2tol1msg_out = SENDLINE;  // Send the line considering the fact that L1 has evicted and L2 is sending the modified data to it
 	    end
-	    else if(nmsg_in == SNOOP_READ_REQ)
+	    else if(nmsg_in == SNOOP_READ_REQ) // BusRD
 	    begin
 		nextstate         = S;
-		nxt_bus_func_out  = WRITE;
-		nxt_l2tol1msg_out = EVICTLINE; 
+		nxt_bus_func_out  = WRITE;      // WRITE to DRAM: FLush
+		nxt_l2tol1msg_out = NULLMsg;    // L1 does not need to know this shit
 	    end
-	    else if(nmsg_in == SNOOP_READ_WITH_M)
+	    else if((nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_WRITE_REQ)) //BUsRdX
 	    begin
 		nextstate         = I;
-		nxt_bus_func_out  = WRITE;
-		nxt_l2tol1msg_out = EVICTLINE; 
+		nxt_bus_func_out  = WRITE;      // WRITE to DRAM: FLsuhing
+		nxt_l2tol1msg_out = EVICTLINE;  // Sending msg to L1 to evict the kine to maintain inclusivity 
 	    end
 	    else
 	    begin
@@ -113,32 +111,31 @@ always_comb
 		nxt_l2tol1msg_out = l2tol1msg_out;
 	    end
 
-	E : if(nmsg_in == READ_REQ_L1_D)
+	E : if((nmsg_in == READ_REQ_L1_D) | (nmsg_in == READ_REQ_L1_I))
 	    begin
 		nextstate         = E;
-		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = SENDLINE;
+		nxt_bus_func_out  = NULL;      // No Snoop
+		nxt_l2tol1msg_out = SENDLINE;  // Send the line to L1 
 	    end
 
 	    else if(nmsg_in == WRITE_REQ_L1_D)
 	    begin
 		nextstate         = M;
-		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = GETLINE;
+		nxt_bus_func_out  = NULL;       // No Snoop: None has it
+		nxt_l2tol1msg_out = GETLINE;    // We will send the data 
 	    end
-			
-	    else if(nmsg_in == SNOOP_READ_REQ)
+
+	    else if(nmsg_in == SNOOP_READ_REQ) // BUS_RD
 	    begin
 		nextstate         = S;
 		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = SENDLINE;
+		nxt_l2tol1msg_out = NULLMsg;  // We dont need to send the info
 	    end
-			
-	    else if(nmsg_in == SNOOP_READ_WITH_M)
+	    else if((nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_WRITE_REQ)) // Bus_RD_X
 	    begin
 		nextstate         = I;
-		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = INVALIDATELINE;
+		nxt_bus_func_out  = NULL;            
+		nxt_l2tol1msg_out = INVALIDATELINE;   // Invalidate the line
 	    end
 	    else
 	    begin
@@ -147,55 +144,44 @@ always_comb
 		nxt_l2tol1msg_out = l2tol1msg_out;
 	    end
 
-	S : if(nmsg_in == READ_REQ_L1_D)
+	S : if((nmsg_in == READ_REQ_L1_D) | (nmsg_in == READ_REQ_L1_I)) //Pr_rd
 	    begin
-		nextstate         = S;
-		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = SENDLINE;
+		nextstate         = S; 
+		nxt_bus_func_out  = NULL;       
+		nxt_l2tol1msg_out = SENDLINE;  // Because L1 is requesting
 	    end
-
 	    else if(nmsg_in == WRITE_REQ_L1_D)
 	    begin
-		nextstate         = M;
-		nxt_bus_func_out  = INVALIDATE;
-		nxt_l2tol1msg_out = GETLINE;
+		nextstate         = M;            
+		nxt_bus_func_out  = INVALIDATE;  // Because I am modifying others should invalidate
+		nxt_l2tol1msg_out = GETLINE;     // L2 should get modified data from L1
 	    end
-
-	    else if(nmsg_in == READ_REQ_L1_D)
-	    begin
-		nextstate         = S;
-		nxt_bus_func_out  = NULL;
-		nxt_l2tol1msg_out = SENDLINE;
-	    end
-
-	    else if((nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_INVALID_CMD))
+	    else if((nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_WRITE_REQ) | (nmsg_in == SNOOP_INVALID_CMD))
 	    begin
 		nextstate         = I;
 		nxt_bus_func_out  = NULL;
 		nxt_l2tol1msg_out = INVALIDATELINE;
 	    end
-
 	    else
 	    begin
 	    	nextstate         = S;
 		nxt_bus_func_out  = bus_func_out;
 		nxt_l2tol1msg_out = l2tol1msg_out;
-
 	    end
 
-	I : if((nmsg_in == READ_REQ_L1_D) | (nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_INVALID_CMD))
+	I : if((nmsg_in == SNOOP_READ_REQ) | (nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_INVALID_CMD))
 	    begin
 		nextstate         = I;
-			nxt_bus_func_out  = NULL;
-			nxt_l2tol1msg_out = INVALIDATELINE;
+		nxt_bus_func_out  = NULL;
+		nxt_l2tol1msg_out = NULLMsg; // Dont need to send as wen are already invalid state
 	    end
-	    else if(nmsg_in == READ_REQ_L1_D)
+	    else if((nmsg_in == READ_REQ_L1_D)| (nmsg_in == READ_REQ_L1_I))
 	    begin
 		if(C_in)
 		begin
 			nextstate         = S;
-			nxt_bus_func_out  = READ;
-			nxt_l2tol1msg_out = SENDLINE;
+			nxt_bus_func_out  = READ;      // Snoop read so that other cache should know it to move to diff state
+			nxt_l2tol1msg_out = SENDLINE;  // DRAM request should happen 
 		end
 		else
 		begin
@@ -207,8 +193,9 @@ always_comb
 	    else if(nmsg_in == WRITE_REQ_L1_D)
 	    begin
 		nextstate         = M;
-		nxt_bus_func_out  = RWIM;
-		nxt_l2tol1msg_out = GETLINE;
+		nxt_bus_func_out  = RWIM;      // Upon processor write
+		nxt_l2tol1msg_out = SENDLINE;  // Should send the line from L2 to L1 which we got from DRAM
+					       // DFRAM request
 	    end
 	    else
 	    begin

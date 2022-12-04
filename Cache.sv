@@ -51,7 +51,7 @@ mesi_struct			mesi_states_out;  // Use this to update in FSM
 logic 				valid_2d;	// 2 cycles delayed
 
 // This modukle generates the necessary pulses for each module to operate
-// FIXME: Give this output to 
+
 Cache_opr_ctrl i_opr_ctrl (
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
@@ -90,7 +90,7 @@ begin
 		miss_cntr <= miss_cntr;
 	end
 end
-
+// Model HIT HITM MISS COUT CIN DRAM READ REQUESTS BASED ON HIT AND MISS
 // Decode n with enum logic 
 always_comb
 begin
@@ -188,14 +188,14 @@ Cache_mesi_fsm#(
 // CORE LOGIC starts from here
 
 
-// Creating flops for the whole cache
+// Creating hier of cache
 always_ff@(posedge clk or negedge rstb_comb)
 begin
 	if(rstb_comb==0)
 	begin
 		sets <= 0;
 	end
-	else if(update_sets)// update here FIXME
+	else if(update_sets)
 	begin
 		sets <= sets_nxt; 
 	end
@@ -205,9 +205,7 @@ begin
 	end
 end
 
-// Combi logic for the next signal; generate a update signal when all are ready to go inside the cache and check for updates
-// Update below combi logic which is wrong
-// FIXME : How to write to cache coming in..... Think on this 
+// Combi logic for the next signal; generate a update signal when all are ready to go inside the cache and check for updates 
 // Inclusivity should be implemented: Evicting a line from L1 as well when L2 is eviciting
 
 always_comb
@@ -222,10 +220,7 @@ begin
 	sets_nxt[index_in].plru = plru_out;
 	opr_finished = opr_2_pulse;
 
-	set_disp = sets[0];
-
-// Update bus function and L2 2 L1 msg to cache logic 
-
+	set_disp = sets[30485];
 
 // Instead of typecast :( replace it once you get to know how to type cast
 	case(sets[index_in].line[ways_in].mesi)
@@ -252,13 +247,10 @@ endmodule
 // POINTS TO IMPLEMENT
 //
 // Write to cache based on many events those events must be mentioned 
-// should implement the output in series like opr_1 then opr_2 then opr_3
 // HIT should happen only when it is not in invalid state add that condiition
 // 
 // Inclusivity should be maintaned 24 slide cache coherence
 // slide 29 coherence also should check that
-// Operations should be performed in order using opr_ wires
-// inference of MESI state diagrams like evictions and write or read
 // L1 is dirty and it writes to L2 then L2 writes to DRAM upon eviciton 
 
 

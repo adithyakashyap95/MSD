@@ -10,9 +10,8 @@ module cache #(
 	output logic [15:0]	hit_cntr,    // Counter to count the number of HITS
 	output logic [15:0]     miss_cntr,   // Counter to count the number of MISS
 	output bus_struct 	bus_func_out,
-	output l2tol1_struct 	l2tol1msg_out
-
-// FIXME add C_IN AND C_OUT 
+	output l2tol1_struct 	l2tol1msg_out,
+	output logic [1:0]	C            // Modeling C in RTL
 );
 
 sets_nway_t [(NUM_OF_SETS-1):0] sets;
@@ -30,9 +29,6 @@ logic [WAYS-1-1:0]       	plru_out;
 logic [WAYS_REP-1:0]        	way_read_hit;
 logic 				read;
 logic 				cmpr_read_hit;
-
-logic 				C_in;
-logic				C_out;
 
 // Could have selected a vector but this will be easy i the waves
 logic 				opr_1;
@@ -165,21 +161,28 @@ Cache_replacement_algorithm #(
 	5. Monitor the snoop and give iut snoop result.
 */
 // FIXME needs to be updated based on updates in MESI
-// Model C_in and C_out
-// Model Hit, HitM and Miss
+
+/*
+	if      HIT   C_ == 00
+	else if HITM  C == 01
+	else	NOHIT C == 1X
+*/
+
+Cache_get_snoop_function i_snoop_func (
+	.address	(address	),
+	.C		(C		)
+);
 
 Cache_mesi_fsm#(
 
 ) i_mesi_fsm (
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
-	.C_in		(C_in		), // should be driven from top level
+	.C_in		(C		),
 	.mesi_states_in	(mesi_states_in ),
 	.valid		(valid		),
 	.valid_d	(valid_d	),
 	.nmsg_in	(n_in		),
-
-	.C_out 		(C_out		), // should be driven to top level
 	.mesi_states_out(mesi_states_out),
 	.bus_func_out	(bus_func_out	),
 	.l2tol1msg_out	(l2tol1msg_out	)
@@ -220,7 +223,7 @@ begin
 	sets_nxt[index_in].plru = plru_out;
 	opr_finished = opr_2_pulse;
 
-	set_disp = sets[30485];
+	set_disp = sets[0];
 
 // Instead of typecast :( replace it once you get to know how to type cast
 	case(sets[index_in].line[ways_in].mesi)

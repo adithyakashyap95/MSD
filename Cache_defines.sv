@@ -8,5 +8,13 @@ localparam BYTE           = 'h6;                              //$clog2(64);     
 localparam TAG            = 'hB;                              //(32 - INDEX - BYTE);                 // 32 is because of unsigned integer  
 localparam NUM_OF_LINES   = 'h40000;                          //(2**(INDEX))*WAYS;                   // 2^(15+8)
 localparam NUM_OF_SETS    = 'h8000;                           //(2**(INDEX));                        // 2^(15)
-
+/*
+	if      HIT   C_in == 00
+	else if HITM  C_in == 01
+	else	NOHIT C_in == 1X
+*/
+localparam HIT		  = 0;
+localparam HITM		  = 1;
+localparam NOHIT_1	  = 2;
+localparam NOHIT_2	  = 3;
 `endif

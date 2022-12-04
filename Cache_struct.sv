@@ -17,7 +17,7 @@ typedef struct packed
 {
   mesi_t  mesi;                      // MESI state replacing valid and dirty
   logic  [(INDEX-1):0] tag;          // REPLACE TAG 
-//  logic  [(BYTE-1):0]  byte_select;   // Byte select
+//  logic  [(BYTE-1):0]  byte_select;   // Byte select: Dont need to model byte offset
 } line_t;
 
 typedef struct packed
@@ -57,20 +57,6 @@ typedef struct packed
 {
  bus_func_t bus;
  }bus_struct;
-
-
-typedef enum logic[1:0]
-{
-  NOHIT     = 2'd0,        /* No hit */
-  HIT       = 2'd1,        /* Hit */
-  HITM      = 2'd2         /* Hit to modified line */
-} hit_miss_t;
-
-typedef struct packed
-{
- hit_miss_t hitmiss;
- }hitmiss_struct;
-
 
 typedef enum logic[2:0]
 {

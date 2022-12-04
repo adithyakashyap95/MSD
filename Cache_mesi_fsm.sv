@@ -1,27 +1,28 @@
 `include "Cache_struct.sv"
 
 module Cache_mesi_fsm(
-input  logic  clk, 			//clock signal
-input  logic  rstb, 			//Active low reset signal
-input  logic  C_in,			//An active low input signal when asserted displays
-					//that other caches has that cache line
+	input  logic  		clk, 		//clock signal
+	input  logic  		rstb, 		//Active low reset signal
+	input  logic [1:0] 	C_in,		//An active low input signal when asserted displays
+						//that other caches has that cache line
 
-input  mesi_struct mesi_states_in,	//Input signals from cache to MESI logic
-input  logic    valid,
-input  logic    valid_d,
-input  n_struct nmsg_in,
+	input  mesi_struct 	mesi_states_in,	//Input signals from cache to MESI logic
+	input  logic    	valid,
+	input  logic    	valid_d,
+	input  n_struct 	nmsg_in,
 
-output logic         C_out,             //An output signal asserted to display
-					//that the cache has that cache line
-output mesi_struct   mesi_states_out,	//Input signals from cache to MESI logic after update
-
-output bus_struct    bus_func_out,
-output l2tol1_struct l2tol1msg_out
+	//output logic [1:0]   C_out,             //An output signal asserted to display
+						  //that the cache has that cache line
+	output mesi_struct   	mesi_states_out,  //Input signals from cache to MESI logic after update
+	output bus_struct    	bus_func_out,
+	output l2tol1_struct 	l2tol1msg_out
 );
 
-mesi_t currentstate, nextstate, to_update_state;
-bus_struct    nxt_bus_func_out;
-l2tol1_struct nxt_l2tol1msg_out;
+mesi_t 		currentstate;
+mesi_t		nextstate;
+mesi_t 		to_update_state;
+bus_struct    	nxt_bus_func_out;
+l2tol1_struct 	nxt_l2tol1msg_out;
 
 always_comb
 begin
@@ -55,10 +56,6 @@ always_ff @(posedge clk or negedge rstb)
 	begin
 		currentstate <= to_update_state;
 	end
-	/*else if(valid_d)
-	begin
-		currentstate <= nextstate;
-	end*/
 	else
 	begin
 		currentstate <= nextstate;
@@ -97,6 +94,7 @@ always_comb
 		nextstate         = S;
 		nxt_bus_func_out  = WRITE;      // WRITE to DRAM: FLush
 		nxt_l2tol1msg_out = NULLMsg;    // L1 does not need to know this shit
+		//C_out 		  = HITM;
 	    end
 	    else if((nmsg_in == SNOOP_READ_WITH_M) | (nmsg_in == SNOOP_WRITE_REQ)) //BUsRdX
 	    begin
@@ -117,14 +115,12 @@ always_comb
 		nxt_bus_func_out  = NULL;      // No Snoop
 		nxt_l2tol1msg_out = SENDLINE;  // Send the line to L1 
 	    end
-
 	    else if(nmsg_in == WRITE_REQ_L1_D)
 	    begin
 		nextstate         = M;
 		nxt_bus_func_out  = NULL;       // No Snoop: None has it
 		nxt_l2tol1msg_out = GETLINE;    // We will send the data 
 	    end
-
 	    else if(nmsg_in == SNOOP_READ_REQ) // BUS_RD
 	    begin
 		nextstate         = S;
@@ -177,13 +173,13 @@ always_comb
 	    end
 	    else if((nmsg_in == READ_REQ_L1_D)| (nmsg_in == READ_REQ_L1_I))
 	    begin
-		if(C_in)
+		if((C_in==HIT) || (C_in==HITM)) // HIT
 		begin
 			nextstate         = S;
 			nxt_bus_func_out  = READ;      // Snoop read so that other cache should know it to move to diff state
 			nxt_l2tol1msg_out = SENDLINE;  // DRAM request should happen 
 		end
-		else
+		else // ((C_in == NOHIT_1)||(C_in == NOHIT_2)) //NOHIT // No HITM in this case as it just read
 		begin
 			nextstate         = E;
 			nxt_bus_func_out  = READ;
@@ -195,7 +191,7 @@ always_comb
 		nextstate         = M;
 		nxt_bus_func_out  = RWIM;      // Upon processor write
 		nxt_l2tol1msg_out = SENDLINE;  // Should send the line from L2 to L1 which we got from DRAM
-					       // DFRAM request
+					       // DRAM request
 	    end
 	    else
 	    begin

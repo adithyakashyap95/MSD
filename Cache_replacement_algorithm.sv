@@ -5,7 +5,6 @@ module Cache_replacement_algorithm #(
 	input  logic [WAYS-1-1:0]	plru_in,         
 	output logic [WAYS-1-1:0]       plru_out,
 	output logic [WAYS_REP-1:0]     ways,
-	input  logic 			read,
 	input  logic 			cmpr_read_hit,
 	input  logic [WAYS_REP-1:0]     way_read_hit
 
@@ -26,7 +25,7 @@ Cache_get_PLRU #(
 	.way_getlru     (ways_mid     )          //Way encoded in 3'binary.
 );
 
-assign ways = ((read && cmpr_read_hit)==1) ? way_read_hit : ways_mid;
+assign ways = ((cmpr_read_hit)==1) ? way_read_hit : ways_mid;
 
 Cache_update_PLRU #(
 	.WAYS		(WAYS         ), 

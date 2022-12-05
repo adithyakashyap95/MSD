@@ -7,7 +7,6 @@ module Cache_hit #(
 	input  logic 		     clk,
 	input  logic 		     rstb,
 	input  sets_nway_t 	     sets,
-	input  logic     	     read,
 	input  logic [(TAG-1):0]     tag_in,
 	output logic [WAYS_REP-1:0]  way,
 	output logic 		     cmpr_read_hit

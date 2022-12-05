@@ -11,10 +11,10 @@ module cache #(
 	output logic [15:0]     miss_cntr,   // Counter to count the number of MISS
 	output bus_struct 	bus_func_out,
 	output l2tol1_struct 	l2tol1msg_out,
-	output logic [1:0]	C            // Modeling C in RTL
+	output logic [1:0]	C,            // Modeling C in RTL
+	output sets_nway_t [(NUM_OF_SETS-1):0] sets
 );
 
-sets_nway_t [(NUM_OF_SETS-1):0] sets;
 sets_nway_t [(NUM_OF_SETS-1):0] sets_nxt;
 
 sets_nway_t    			set_disp;
@@ -27,7 +27,6 @@ logic [WAYS_REP-1:0]            ways_in;
 logic [WAYS-1-1:0]	 	plru_in;        
 logic [WAYS-1-1:0]       	plru_out;
 logic [WAYS_REP-1:0]        	way_read_hit;
-logic 				read;
 logic 				cmpr_read_hit;
 
 // Could have selected a vector but this will be easy i the waves
@@ -35,18 +34,14 @@ logic 				opr_1;
 logic 				opr_2;
 logic 				opr_1_pulse;
 logic 				opr_2_pulse;
-
 logic 				opr_finished;
+logic 				sync_rstb;       // This is when n = 8
+logic 				rstb_comb;       // created the combi logic to reset it
+mesi_struct			mesi_states_in;  // Use this to update in cache
+mesi_struct			mesi_states_out; // Use this to update in FSM
+logic 				valid_2d;	 // 2 cycles delayed
 
-logic 				sync_rstb; // This is when n = 8
-logic 				rstb_comb; // created the combi logic to reset it
-
-mesi_struct			mesi_states_in;   // Use this to update in cache
-mesi_struct			mesi_states_out;  // Use this to update in FSM
-
-logic 				valid_2d;	// 2 cycles delayed
-
-// This modukle generates the necessary pulses for each module to operate
+// This module generates the necessary pulses for each module to operate
 
 Cache_opr_ctrl i_opr_ctrl (
 	.clk		(clk		),
@@ -70,12 +65,12 @@ begin
 		hit_cntr  <= '0;
 		miss_cntr <= '0;
 	end
-	else if (valid_d & (cmpr_read_hit))
+	else if (valid_d & (cmpr_read_hit) & (~((n==9)|(n==8))))
 	begin
 		hit_cntr  <= hit_cntr + 1;
 		miss_cntr <= miss_cntr;
 	end
-	else if (valid_d & (~cmpr_read_hit))
+	else if (valid_d & (~cmpr_read_hit) & (~((n==9)|(n==8))))
 	begin
 		hit_cntr  <= hit_cntr;
 		miss_cntr <= miss_cntr + 1;
@@ -125,8 +120,6 @@ assign byte_offset_in = address[(BYTE-1):0];
 // small module coded for the hit case so that it compares the
 // tag incoming qnd exisitng and get the way from it : Cache_read_hit
 
-assign read = ((n_in==READ_REQ_L1_D)|(n_in==READ_REQ_L1_I)|(n_in==WRITE_REQ_L1_D));
-
 Cache_hit #(
 	.WAYS_REP	(WAYS_REP	),
 	.INDEX	        (INDEX		)
@@ -134,7 +127,6 @@ Cache_hit #(
 	.clk		(clk		),
 	.rstb		(rstb_comb	),
 	.sets		(sets[index_in] ),
-	.read		(read		),
 	.tag_in		(tag_in		),
 	.way		(way_read_hit	),
 	.cmpr_read_hit	(cmpr_read_hit	)
@@ -147,7 +139,6 @@ Cache_replacement_algorithm #(
 	.plru_in	(plru_in	),         
 	.plru_out	(plru_out	),
 	.ways		(ways_in	),
-	.read		(read		),
 	.way_read_hit 	(way_read_hit	),
 	.cmpr_read_hit	(cmpr_read_hit  )
 );

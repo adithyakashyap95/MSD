@@ -158,6 +158,13 @@ always_comb
 		nxt_bus_func_out  = NULL;
 		nxt_l2tol1msg_out = INVALIDATELINE;
 	    end
+	    else if (nmsg_in == SNOOP_READ_REQ)
+	    begin
+	    	nextstate         = S;
+		nxt_bus_func_out  = NULL;
+		nxt_l2tol1msg_out = NULLMsg;
+	    end
+
 	    else
 	    begin
 	    	nextstate         = S;

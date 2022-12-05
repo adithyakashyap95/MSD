@@ -8,8 +8,8 @@
 # vsim -voptargs=+acc work.cache_TB +silent +FILENAME=<filename> +COMPAREFILE=<compare_filename>
 # example : 
 # vsim -voptargs=+acc work.cache_TB +silent +FILENAME=basic_memory_test.txt +COMPAREFILE=filecompare.txt
-# vsim -voptargs=+acc work.cache_TB +silent +FILENAME=PLRU_test1.txt        +COMPAREFILE=PLRU_test1.txt
-# vsim -voptargs=+acc work.cache_TB +silent +FILENAME=PLRU_test2.txt        +COMPAREFILE=PLRU_test2.txt
+# vsim -voptargs=+acc work.cache_TB +silent +FILENAME=PLRU_test1.txt +COMPAREFILE=PLRU_test1.txt
+# vsim -voptargs=+acc work.cache_TB +silent +FILENAME=PLRU_test2.txt +COMPAREFILE=PLRU_test2.txt
 #
 # Valid test plus args
 # 1) silent

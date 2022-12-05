@@ -160,7 +160,7 @@ begin
 		begin
 			if(($test$plusargs ("normal"))|($test$plusargs ("Normal"))|($test$plusargs ("n"))|($test$plusargs ("N"))|($test$plusargs ("NORMAL")))
 			begin
-				$display("Our snooping bus operation :Address = %h, Bus operation = %s",address, bus_func_out.bus.name());
+				$display("Our operation n=%s :Address = %h, Bus operation = %s, snoopresult=%s",nmsg.name(),address, bus_func_out.bus.name(),h);
 				$display("Address = %h, Message = %s",address, l2tol1msg_out.l2tol1.name());
 				if((n==4'b0011 | n==4'b0100 | n==4'b0101 | n==4'b0110))
 				begin

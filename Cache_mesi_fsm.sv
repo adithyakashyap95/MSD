@@ -83,11 +83,17 @@ always_ff @(posedge clk or negedge rstb)
 
 always_comb
    case(currentstate)
-	M : if ((nmsg_in == READ_REQ_L1_D) | (nmsg_in == READ_REQ_L1_I) | (nmsg_in == WRITE_REQ_L1_D))
+	M : if ((nmsg_in == READ_REQ_L1_D) | (nmsg_in == READ_REQ_L1_I))
 	    begin
 		nextstate         = M;
 		nxt_bus_func_out  = NULL;
 		nxt_l2tol1msg_out = SENDLINE;  // Send the line considering the fact that L1 has evicted and L2 is sending the modified data to it
+	    end
+	    else if ((nmsg_in == WRITE_REQ_L1_D))
+	    begin
+		nextstate         = M;
+		nxt_bus_func_out  = NULL;
+		nxt_l2tol1msg_out = GETLINE;  // Send the line considering the fact that L1 has evicted and L2 is sending the modified data to it
 	    end
 	    else if(nmsg_in == SNOOP_READ_REQ) // BusRD
 	    begin

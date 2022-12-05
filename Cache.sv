@@ -102,7 +102,7 @@ end
 // Reset block to be used for clearing the cache asynchronously 
 always_comb
 begin
-	sync_rstb = ((n_in & valid) == CLR_CACHE_RST) ? 0 : 1;    // active low 
+	sync_rstb = ((n_in == CLR_CACHE_RST) & valid) ? 0 : 1;    // active low 
 	rstb_comb = rstb & sync_rstb;			          // AND with the main reset; Initial bug analysis on rstb
 end
 

@@ -24,6 +24,23 @@ logic [15:0] access_total;
 logic [1:0] C;
 string h=" ";
 sets_nway_t [(NUM_OF_SETS-1):0] sets;
+n_t nmsg;
+
+always_comb
+begin
+	case(n)
+		0:nmsg = READ_REQ_L1_D;
+  		1:nmsg = WRITE_REQ_L1_D;
+  		2:nmsg = READ_REQ_L1_I;
+  		3:nmsg = SNOOP_INVALID_CMD;
+  		4:nmsg = SNOOP_READ_REQ;
+  		5:nmsg = SNOOP_WRITE_REQ;
+  		6:nmsg = SNOOP_READ_WITH_M;
+  		8:nmsg = CLR_CACHE_RST;
+  		9:nmsg = PRINT_CONTENTS;
+		default:nmsg = PRINT_CONTENTS;     // Considering the if invalid commands to print             
+	endcase
+end
 
 always_comb
 begin
@@ -53,14 +70,23 @@ cache #(
 	.sets		(sets		)
 );
 
-initial   // FIXME: Check this counter
+always_ff @(posedge clk or negedge rstb)   // FIXME: Check this counter
 begin
-	read_cntr=0;
-	write_cntr=0;
-	if(n==4'b0000 | n==4'b0010)
+	if(rstb==0)
+	begin
+		read_cntr=0;
+		write_cntr=0;
+	end
+	else if((n==4'b0000 | n==4'b0010) & valid)
+	begin
 		read_cntr= read_cntr+1;
-	else if(n==4'b0001)
+		write_cntr = write_cntr;
+	end
+	else if((n==4'b0001) & valid)
+	begin
 		write_cntr=write_cntr+1;
+		read_cntr = read_cntr;
+	end
 	else
 	begin
 		read_cntr=read_cntr;
@@ -134,8 +160,12 @@ begin
 		begin
 			if(($test$plusargs ("normal"))|($test$plusargs ("Normal"))|($test$plusargs ("n"))|($test$plusargs ("N"))|($test$plusargs ("NORMAL")))
 			begin
-				$display("Address = %h, Bus operation = %s, snoopresult=%s",address, bus_func_out.bus.name(), h);
+				$display("Our snooping bus operation :Address = %h, Bus operation = %s",address, bus_func_out.bus.name());
 				$display("Address = %h, Message = %s",address, l2tol1msg_out.l2tol1.name());
+				if((n==4'b0011 | n==4'b0100 | n==4'b0101 | n==4'b0110))
+				begin
+					$display("other processor's snooping bus operation :Address = %h, Bus operation = %s, snoopresult=%s",address, nmsg.name(),h);
+				end
 			end
 			if ((filename == "PLRU_test1.txt" || filename == "PLRU_test2.txt") && (compare_filename == "comparePLRU_test1.txt" || compare_filename == "comparePLRU_test2.txt"))
 			begin
@@ -151,8 +181,8 @@ begin
 			begin 
 				//$display("");//$display("Input File and Reference File mismatch! Please check the filenames given in the command");
 			end
-		end
-    	end
+    		end
+	end
 	$fclose(event_open); //closes the file
 	if(($test$plusargs ("normal"))|($test$plusargs ("Normal"))|($test$plusargs ("n"))|($test$plusargs ("N"))|($test$plusargs ("NORMAL")))
 	begin
@@ -160,16 +190,19 @@ begin
 		$display("Number of cache writes = %d", write_cntr);
 		$display("Number of cache hits = %d", hit_cntr);
 		$display("Number of cache misses = %d", miss_cntr);
+		$display("Cache hit ratio : hit_cntr/(hit_cntr+miss_cntr) = %d/%d ", hit_cntr,access_total);
 	end
 	if(($test$plusargs ("silent"))|($test$plusargs ("Silent"))|($test$plusargs ("s"))|($test$plusargs ("S"))|($test$plusargs ("SILENT")))
 	begin
 		$display("Number of cache reads = %d", read_cntr);
 		$display("Number of cache writes = %d", write_cntr);
 		$display("Number of cache hits = %d", hit_cntr);
-		$display("Number of cache misses = %d", miss_cntr);	
+		$display("Number of cache misses = %d", miss_cntr);
+		$display("Cache hit ratio : hit_cntr/(hit_cntr+miss_cntr) = %d/%d", hit_cntr,access_total);	
 	end
 	//#10 $stop;
 end
+
 initial
 begin
 	clk = 0;
